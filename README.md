@@ -1,3 +1,41 @@
-O UniceHub é uma plataforma inspirada no LinkedIn e GitHub, com o objetivo de conectar estudantes e professores dentro de um ambiente acadêmico e profissional. A proposta é facilitar o networking dentro da universidade, especialmente na área de TI.
-A plataforma permite que os alunos criem perfis com informações como curso, habilidades, certificados e interesses profissionais. Além disso, professores também podem participar, promovendo maior interação, troca de conhecimento e oportunidades dentro da própria instituição.
-O UniceHub busca funcionar como um ambiente corporativo voltado para a faculdade, incentivando o desenvolvimento profissional dos alunos, a valorização de suas competências e a criação de conexões relevantes.
+<p align="center">
+  <img src="unicehub logo.jpeg" width="200"/>
+</p>
+
+Sobre o projeto
+
+O UniceHub é uma plataforma inspirada no LinkedIn e GitHub, com o objetivo de facilitar o networking entre alunos e professores, permitindo compartilhar informações e criar conexões dentro do ambiente acadêmico.
+
+Funcionalidades
+
+- Criar perfil de usuário  
+- Exibir habilidades e certificados  
+- Conectar alunos e professores  
+- Feed de interações 
+
+Tecnologias
+
+O projeto está sendo desenvolvido utilizando:
+
+- HTML, CSS e JavaScript no front-end  
+- PHP no back-end  
+- MySQL para o banco de dados
+
+Organização
+
+- Sprint 23/03  
+- Sprint 30/03
+- Sprint 06/03  
+- Sprint 13/03 
+- Sprint 20/03
+
+Equipe
+
+- César Augusto Rodrigues Santos (Scrum Master)
+- Thiago Henrikeh Evaristo de Faria (Desenvolvedor)
+- João Pedro Frazão Silva (Desenvolvedor)
+- Samuel Monteiro Nóbrega (Analista de Requisitos)
+
+Status
+
+Em desenvolvimento
