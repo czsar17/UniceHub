@@ -1,0 +1,3 @@
+O UniceHub é uma plataforma inspirada no LinkedIn e GitHub, com o objetivo de conectar estudantes e professores dentro de um ambiente acadêmico e profissional. A proposta é facilitar o networking dentro da universidade, especialmente na área de TI.
+A plataforma permite que os alunos criem perfis com informações como curso, habilidades, certificados e interesses profissionais. Além disso, professores também podem participar, promovendo maior interação, troca de conhecimento e oportunidades dentro da própria instituição.
+O UniceHub busca funcionar como um ambiente corporativo voltado para a faculdade, incentivando o desenvolvimento profissional dos alunos, a valorização de suas competências e a criação de conexões relevantes.
