@@ -23,11 +23,12 @@ O projeto está sendo desenvolvido utilizando:
 
 Organização
 
-- Sprint 23/03  
-- Sprint 30/03
-- Sprint 06/03  
-- Sprint 13/03 
-- Sprint 20/03
+- Sprint 15/03  
+- Sprint 22/03
+- Sprint 29/03  
+- Sprint 05/03 
+- Sprint 12/03
+- Sprint 19/03
 
 Equipe
 
