@@ -21,15 +21,6 @@ O projeto está sendo desenvolvido utilizando:
 - PHP no back-end  
 - MySQL para o banco de dados
 
-Organização
-
-- Sprint 15/03  
-- Sprint 22/03
-- Sprint 29/03  
-- Sprint 05/04 
-- Sprint 12/04
-- Sprint 19/04
-
 Equipe
 
 - César Augusto Rodrigues Santos (Scrum Master)
