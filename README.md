@@ -2,18 +2,18 @@
   <img src="unicehub logo.jpeg" width="200"/>
 </p>
 
-Sobre o projeto
+## Sobre o projeto
 
 O UniceHub é uma plataforma inspirada no LinkedIn e GitHub, com o objetivo de facilitar o networking entre alunos e professores, permitindo compartilhar informações e criar conexões dentro do ambiente acadêmico.
 
-Funcionalidades
+## Funcionalidades
 
 - Criar perfil de usuário  
 - Exibir habilidades e certificados  
 - Conectar alunos e professores  
 - Feed de interações 
 
-Tecnologias
+## Tecnologias :
 
 O projeto está sendo desenvolvido utilizando:
 
@@ -21,13 +21,19 @@ O projeto está sendo desenvolvido utilizando:
 - PHP no back-end  
 - MySQL para o banco de dados
 
-Equipe
+## Equipe :
 
 - César Augusto Rodrigues Santos (Scrum Master)
 - Thiago Henrikeh Evaristo de Faria (Desenvolvedor)
 - João Pedro Frazão Silva (Desenvolvedor)
 - Samuel Monteiro Nóbrega (Analista de Requisitos)
 
-Status
+### Orientadores :
 
-Em desenvolvimento
+- Hércules Júnior 
+- Romulo Riberiro 
+
+
+## Status :
+
+### <strong>Em desenvolvimento...</strong>
