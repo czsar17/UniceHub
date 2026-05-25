@@ -531,3 +531,24 @@ input[type="date"]::-webkit-calendar-picker-indicator{
 
     object-fit:contain;
 }
+
+/* erros de rns */
+
+.input-error{
+    display:block;
+
+    margin-top:8px;
+
+    color:#e53935;
+
+    font-size:0.85rem;
+
+    font-weight:500;
+}
+
+.input-box.error input{
+    border-color:#e53935;
+
+    box-shadow:
+    0 0 0 4px rgba(229,57,53,0.12);
+}

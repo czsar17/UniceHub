@@ -107,29 +107,36 @@
             <!-- CPF -->
             <div class="input-group">
 
-                <label>
-                    CPF
-                    <span>*</span>
-                </label>
+            <label>
+                CPF
+                <span>*</span>
+            </label>
 
-                <div class="input-box">
+            <div class="input-box @error('cpf') error @enderror">
 
-                    <i class="fa-regular fa-id-card"></i>
+                <i class="fa-regular fa-id-card"></i>
 
-                    <input
-                        type="text"
-                        id="cpf"
-                        name="cpf"
-                        value="{{ old('cpf') }}"
-                        placeholder="Somente números"
-                        maxlength="11"
-                        required
-                    />
+                <input
+                    type="text"
+                    id="cpf"
+                    name="cpf"
+                    value="{{ old('cpf') }}"
+                    placeholder="Somente números"
+                    maxlength="11"
+                    required
+                />
 
-                </div>
+            </div>
+
+            <small
+                    class="input-error"
+                    id="cpfError"
+            ></small>
 
                 @error('cpf')
-                    <small>{{ $message }}</small>
+                    <small class="input-error">
+                        {{ $message }}
+                    </small>
                 @enderror
 
             </div>
@@ -137,31 +144,32 @@
             <!-- EMAIL -->
             <div class="input-group">
 
-                <label>
-                    Email
-                    <span>*</span>
-                </label>
+            <label>
+                Email
+                <span>*</span>
+            </label>
 
-                <div class="input-box">
+            <div class="input-box @error('email') error @enderror">
 
-                    <i class="fa-regular fa-envelope"></i>
+                <i class="fa-regular fa-envelope"></i>
 
-                    <input
-                        type="email"
-                        name="email"
-                        value="{{ old('email') }}"
-                        placeholder="Digite seu melhor email"
-                        required
-                    />
-
-                </div>
-
-                @error('email')
-                    <small>{{ $message }}</small>
-                @enderror
+                <input
+                    type="email"
+                    name="email"
+                    value="{{ old('email') }}"
+                    placeholder="Digite seu melhor email"
+                    required
+                />
 
             </div>
 
+                @error('email')
+                    <small class="input-error">
+                        {{ $message }}
+                    </small>
+                @enderror
+
+            </div>
             <!-- NASCIMENTO -->
             <div class="input-group">
 
@@ -289,7 +297,7 @@
 
                 <span>Já possui uma conta?</span>
 
-                <a href="#">
+                <a href="/login" class="login-btn">
                     Faça login
                 </a>
 
