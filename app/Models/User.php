@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Atividade;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -16,7 +17,16 @@ class User extends Authenticatable
         'password',
         'cpf',
         'data_nascimento',
-        'tipo'
+        'tipo',
+        'foto',
+        'curso',
+        'telefone',
+        'quantidade_projetos',
+        'seguidores',
+        'seguindo',
+        'sobre_mim',
+        'tecnologias',
+        'interesses_markdown'
     ]; 
 
     protected $hidden = [
@@ -26,5 +36,11 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'tecnologias' => 'array'
     ];
+
+    public function atividades()
+    {
+        return $this->hasMany(Atividade::class);
+    }
 }

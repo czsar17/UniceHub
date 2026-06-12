@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil - UniceHub</title>
+    <link rel="stylesheet" href="{{ asset('css/perfil.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+@php
+    $user = Auth::user();
+    $cursos = [
+        'ADS' => 'ADS',
+        'Análise e Desenvolvimento de Sistemas' => 'Análise e Desenvolvimento de Sistemas',
+        'Engenharia de Software' => 'Engenharia de Software',
+        'Ciência da Computação' => 'Ciência da Computação',
+    ];
+    $tecnologias = old('tecnologias', $user->tecnologias ?? []);
+
+    if (is_string($tecnologias)) {
+        $tecnologias = array_filter(array_map('trim', explode(',', $tecnologias)));
+    }
+
+    $interessesMarkdown = old('interesses_markdown', $user->interesses_markdown ?? '');
+    $interessesHtml = trim($interessesMarkdown)
+        ? \Illuminate\Support\Str::markdown($interessesMarkdown, [
+            'html_input' => 'allow',
+            'allow_unsafe_links' => false,
+        ])
+        : '';
+@endphp
+
+<body>
+    <header class="header">
+        <div class="header-left">
+            <i class="fa-solid fa-bars menu-icon"></i>
+            <img src="{{ asset('images/LOGOUNICEHUB-removebg-preview.png') }}" class="header-logo">
+        </div>
+
+        <div class="search-box">
+            <input type="text" placeholder="Pesquisar...">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+
+        <div class="header-icons">
+            <i class="fa-regular fa-bell notification"></i>
+            <div class="header-profile">
+                <img src="{{ asset($user->foto) }}" class="profile-pic">
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="sidebar-content">
+                <ul>
+                    <li class="{{ request()->routeIs('home') ? 'active' : '' }}">
+                        <a href="{{ route('home') }}">
+                            <i class="fa-solid fa-house"></i>
+                            <span>Home</span>
+                        </a>
+                    </li>
+
+                    <li class="{{ request()->routeIs('perfil') ? 'active' : '' }}">
+                        <a href="{{ route('perfil') }}">
+                            <i class="fa-regular fa-user"></i>
+                            <span>Perfil</span>
+                        </a>
+                    </li>
+
+                    <li class="{{ request()->routeIs('conexoes') ? 'active' : '' }}">
+                        <a href="{{ route('conexoes') }}">
+                            <i class="fa-solid fa-user-group"></i>
+                            <span>Conexões</span>
+                        </a>
+                    </li>
+
+                    <li class="{{ request()->routeIs('projetos') ? 'active' : '' }}">
+                        <a href="{{ route('projetos') }}">
+                            <i class="fa-regular fa-folder"></i>
+                            <span>Projetos</span>
+                        </a>
+                    </li>
+
+                    <li class="{{ request()->routeIs('config') ? 'active' : '' }}">
+                        <a href="{{ route('config') }}">
+                            <i class="fa-solid fa-gear"></i>
+                            <span>Configurações</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="sidebar-profile">
+                    <img src="{{ asset($user->foto) }}" class="profile-pic">
+                    <div>
+                        <h4>{{ $user->name }}</h4>
+                        @if($user->curso)
+                            <span>{{ $user->curso }}</span>
+                        @endif
+                    </div>
+                </div>
+
+                <form method="POST" action="/logout">
+                    @csrf
+                    <button class="logout" type="submit">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        Sair
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="profile-content">
+            @if ($errors->any())
+                <div class="profile-alert profile-alert-error">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
+            <form id="formPerfil" action="/perfil/atualizar" method="POST" enctype="multipart/form-data">
+                @csrf
+
+                <section class="profile-header">
+                    <div class="profile-picture">
+                        <img src="{{ asset($user->foto) }}" class="profile-pic">
+                        <label class="photo-edit-action" for="foto" aria-label="Alterar foto">
+                            <i class="fa-solid fa-camera"></i>
+                        </label>
+                        <input type="file" name="foto" id="foto" hidden disabled class="campo-edicao" accept="image/*">
+                    </div>
+
+                    <div class="profile-info">
+                        <input
+                            type="text"
+                            name="name"
+                            value="{{ old('name', $user->name) }}"
+                            disabled
+                            required
+                            maxlength="255"
+                            class="campo-edicao nome-input">
+
+                        <select name="curso" disabled class="campo-edicao curso-input">
+                            <option value="">Selecione seu curso</option>
+                            @foreach($cursos as $valor => $rotulo)
+                                <option value="{{ $valor }}" @selected(old('curso', $user->curso) === $valor)>
+                                    {{ $rotulo }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <p>
+                            <i class="fa-regular fa-calendar"></i>
+                            Membro desde: {{ $user->created_at->format('d/m/Y') }}
+                        </p>
+
+                        <div class="profile-stats">
+                            <span>Projetos: {{ $user->quantidade_projetos }}</span>
+                            <span>Seguidores: {{ $user->seguidores }}</span>
+                            <span>Seguindo: {{ $user->seguindo }}</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-actions">
+                        <button type="button" id="btnCancelar" class="cancel-profile-btn" hidden>
+                            Cancelar
+                        </button>
+
+                        <button type="button" id="btnEditar" class="edit-project-btn">
+                            <i class="fa-solid fa-pen"></i>
+                            Editar Perfil
+                        </button>
+                    </div>
+                </section>
+
+                <section class="profile-tabs">
+                    <button type="button" class="tab-btn active" data-tab="sobre">Sobre</button>
+                    <button type="button" class="tab-btn" data-tab="interesses">Interesses</button>
+                    <button type="button" class="tab-btn" data-tab="projetos">Projetos</button>
+                    <button type="button" class="tab-btn" data-tab="atividades">Atividades</button>
+                </section>
+
+                <section class="tab-content active" id="sobre">
+                    <div class="profile-body">
+                        <div class="left-column">
+                            <div class="profile-card">
+                                <h2>Sobre mim</h2>
+
+                                <textarea
+                                    name="sobre_mim"
+                                    id="sobre_mim"
+                                    maxlength="350"
+                                    disabled
+                                    class="campo-edicao textarea-perfil"
+                                    placeholder="Conte um pouco sobre você">{{ old('sobre_mim', $user->sobre_mim) }}</textarea>
+
+                                <div class="char-counter">
+                                    <span id="sobreContador">0</span>/350 caracteres
+                                </div>
+
+                                <hr>
+
+                                <div class="profile-contact-grid">
+                                    <label>
+                                        <span>Email</span>
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            value="{{ old('email', $user->email) }}"
+                                            disabled
+                                            required
+                                            maxlength="255"
+                                            class="campo-edicao profile-field">
+                                    </label>
+
+                                    <label>
+                                        <span>Número</span>
+                                        <input
+                                            type="tel"
+                                            name="telefone"
+                                            value="{{ old('telefone', $user->telefone) }}"
+                                            disabled
+                                            maxlength="20"
+                                            placeholder="(00) 00000-0000"
+                                            class="campo-edicao profile-field">
+                                    </label>
+                                </div>
+
+                                <hr>
+
+                                <div class="section-title-row">
+                                    <h2>Tecnologias</h2>
+                                    <span id="techCounter">0/8</span>
+                                </div>
+
+                                <div class="tech-editor">
+                                    <input
+                                        type="text"
+                                        id="techInput"
+                                        disabled
+                                        maxlength="30"
+                                        class="campo-edicao profile-field"
+                                        placeholder="Digite uma tecnologia">
+
+                                    <button type="button" id="btnAddTech" class="add-tech-btn" disabled>
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </div>
+
+                                <div class="techs" id="techList">
+                                    @foreach(array_slice($tecnologias, 0, 8) as $tecnologia)
+                                        <span class="tech-tag" data-value="{{ $tecnologia }}">
+                                            #{{ $tecnologia }}
+                                            <button type="button" class="remove-tech" aria-label="Remover {{ $tecnologia }}">
+                                                <i class="fa-solid fa-xmark"></i>
+                                            </button>
+                                            <input type="hidden" name="tecnologias[]" value="{{ $tecnologia }}">
+                                        </span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="right-column">
+                            <div class="profile-card">
+                                <h2>Atividades Recentes</h2>
+
+                                @forelse($atividades as $atividade)
+                                    <div class="atividade-item">
+                                        <p>{{ $atividade->descricao }}</p>
+                                    </div>
+                                @empty
+                                    <p>Esse usuário ainda não possui atividades recentes.</p>
+                                @endforelse
+
+                                <a href="#">Ver todas as atividades</a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="tab-content" id="interesses">
+                    <div class="profile-card readme-card">
+                        <div class="section-title-row">
+                            <h2>README de interesses</h2>
+                            <span>Markdown</span>
+                        </div>
+
+                        <textarea
+                            name="interesses_markdown"
+                            id="interesses_markdown"
+                            disabled
+                            class="campo-edicao markdown-editor"
+                            placeholder="# Meus interesses
+
+Sou uma pessoa interessada em desenvolvimento web, projetos colaborativos e tecnologia aplicada.
+
+## Atualmente estudando
+- Laravel
+- JavaScript
+- Banco de dados
+
+```js
+console.log('UniceHub');
+```">{{ $interessesMarkdown }}</textarea>
+
+                        <div class="readme-preview markdown-body {{ $interessesHtml ? '' : 'readme-empty' }}">
+                            @if($interessesHtml)
+                                {!! $interessesHtml !!}
+                            @else
+                                <p>Seu README de interesses vai aparecer aqui depois que voce escrever em Markdown e salvar.</p>
+                                <pre><code># Meus interesses
+
+- Desenvolvimento web
+- Projetos academicos
+- Inteligencia artificial</code></pre>
+                            @endif
+                        </div>
+                    </div>
+                </section>
+
+                <section class="tab-content" id="projetos">
+                    <div class="profile-card">
+                        <h2>Meus Projetos</h2>
+                        <div class="placeholder"></div>
+                        <button type="button" class="project-btn">Ver Projeto</button>
+                    </div>
+                </section>
+
+                <section class="tab-content" id="atividades">
+                    <div class="profile-card">
+                        <h2>Atividades Recentes</h2>
+                    </div>
+                </section>
+            </form>
+        </main>
+    </div>
+
+    <script src="{{ asset('js/perfil.js') }}"></script>
+</body>
+
+</html>

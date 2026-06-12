@@ -121,8 +121,9 @@
                     id="cpf"
                     name="cpf"
                     value="{{ old('cpf') }}"
-                    placeholder="Somente números"
-                    maxlength="11"
+                    placeholder="000-000-000-00"
+                    maxlength="14"
+                    inputmode="numeric"
                     required
                 />
 
