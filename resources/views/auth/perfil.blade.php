@@ -180,7 +180,6 @@
                     <button type="button" class="tab-btn active" data-tab="sobre">Sobre</button>
                     <button type="button" class="tab-btn" data-tab="interesses">Interesses</button>
                     <button type="button" class="tab-btn" data-tab="projetos">Projetos</button>
-                    <button type="button" class="tab-btn" data-tab="atividades">Atividades</button>
                 </section>
 
                 <section class="tab-content active" id="sobre">
@@ -276,7 +275,7 @@
                                     <p>Esse usuário ainda não possui atividades recentes.</p>
                                 @endforelse
 
-                                <a href="#">Ver todas as atividades</a>
+                        
                             </div>
                         </div>
                     </div>

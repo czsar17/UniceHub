@@ -317,51 +317,56 @@ use Illuminate\Support\Facades\Auth;
 
   </div>
 
-  <!-- PRIMEIRA SUGESTÃO -->
-  <div class="suggestion">
+<!-- SUGESTÕES DINÂMICAS -->
+@if($sugestoes->count() > 0)
 
-    <div class="suggestion-user">
+    @foreach($sugestoes as $usuario)
 
-      <img src="assets/user2.png">
+    <div class="suggestion">
 
-      <div>
+        <div class="suggestion-user">
 
-        <h4>Jason Stan</h4>
+            <img src="{{ asset($usuario->foto) }}">
 
-        <span>Ciência da Computação</span>
+            <div>
 
-      </div>
+                <h4>{{ $usuario->name }}</h4>
 
-    </div>
+                @if($usuario->curso)
+                    <span>{{ $usuario->curso }}</span>
+                @endif
 
-    <button>Conectar</button>
+            </div>
 
-  </div>
+        </div>
 
-  <!-- SEGUNDA SUGESTÃO -->
-  <div class="suggestion">
+        <form action="{{ route('seguir.enviar', $usuario->id) }}" method="POST">
 
-    <div class="suggestion-user">
+            @csrf
 
-      <img src="assets/user3.png">
+            <button type="submit">
+                Conectar
+            </button>
 
-      <div>
-
-        <h4>Cristiano Ronaldo</h4>
-
-        <span>ADS</span>
-
-      </div>
+        </form>
 
     </div>
 
-    <button>Conectar</button>
+    @endforeach
 
-  </div>
+@else
 
-</div>
-      <!-- Projetos -->
-      <!-- Projetos -->
+    <div class="empty-suggestions">
+
+        <i class="fa-solid fa-user-group"></i>
+
+        <p>Nenhum usuário encontrado para se conectar.</p>
+
+    </div>
+
+@endif
+
+    
 <div class="widget-card">
 
   <div class="widget-title">
