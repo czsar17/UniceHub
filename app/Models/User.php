@@ -34,6 +34,26 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function seguidores()
+{
+    return $this->belongsToMany(
+        User::class,
+        'followers',
+        'seguido_id',
+        'seguidor_id'
+    )->withPivot('status');
+}
+
+public function seguindo()
+{
+    return $this->belongsToMany(
+        User::class,
+        'followers',
+        'seguidor_id',
+        'seguido_id'
+    )->withPivot('status');
+}
+
     protected $casts = [
         'email_verified_at' => 'datetime',
         'tecnologias' => 'array'

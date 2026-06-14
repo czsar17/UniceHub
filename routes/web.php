@@ -30,10 +30,9 @@ Route::get('/esqueci-senha', function () {
 
 
 // HOME PROTEGIDA
-Route::get('/home', function () {
-    return view('auth.home');
-})->middleware('auth')->name('home');
-
+Route::get('/home', [AuthController::class, 'home'])
+    ->middleware('auth')
+    ->name('home');
 // perfil
 Route::get('/perfil', [AuthController::class, 'perfil'])
 ->middleware('auth')
@@ -52,9 +51,9 @@ Route::get('/config', function () {
 })->middleware('auth')->name('config');
 
 // conexões
-Route::get('/conexoes', function () {
-    return view('auth.conexoes');
-})->middleware('auth')->name('conexoes');
+Route::get('/conexoes', [AuthController::class, 'conexoes'])
+    ->middleware('auth')
+    ->name('conexoes');
 
 // projetos
 Route::get('/projetos', function () {
@@ -66,7 +65,27 @@ Route::get('/projetoscad', function () {
     return view('auth.projetoscad');
 })->middleware('auth')->name('projetoscad');
 
+// seguir usuário
+Route::post(
+    '/seguir/{id}',
+    [AuthController::class, 'seguir']
+)->middleware('auth')->name('seguir.enviar');
 
 
+Route::post(
+    '/seguir/aceitar/{id}',
+    [AuthController::class, 'aceitarSeguidor']
+)->middleware('auth')->name('seguir.aceitar');
+
+Route::post(
+    '/seguir/recusar/{id}',
+    [AuthController::class, 'recusarSeguidor']
+)->middleware('auth')->name('seguir.recusar');
+
+
+Route::post('/bloquear/{id}', [AuthController::class, 'bloquear'])
+    ->middleware('auth')
+    ->name('usuario.bloquear');
+    
 // LOGOUT
 Route::post('/logout', [AuthController::class, 'logout']);

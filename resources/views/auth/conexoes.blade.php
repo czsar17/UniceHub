@@ -201,32 +201,194 @@
             <!-- LISTA -->
             <div class="connections-list">
 
-    <div class="empty-state">
+    {{-- TODOS --}}
+    <div class="tab-content active" id="todos">
 
-        <i id="empty-icon" class="fa-solid fa-user-group"></i>
+        @php
+            $todos = $seguidores->map(fn($f) => $f->seguidor)
+                ->merge($seguindo->map(fn($f) => $f->seguido))
+                ->unique('id');
+        @endphp
 
-        <h3 id="empty-title">
-            Nenhuma conexão encontrada
-        </h3>
+        @forelse($todos as $usuario)
 
-        <p id="empty-text">
-            Comece encontrando pessoas para se conectar.
-        </p>
+        <div class="connection-card">
+
+            <div class="connection-user">
+
+                <img src="{{ asset($usuario->foto) }}">
+
+                <div>
+
+                    <h4>{{ $usuario->name }}</h4>
+
+                    <span>{{ $usuario->curso }}</span>
+
+                </div>
+
+            </div>
+
+            <div class="connection-actions">
+
+                <div class="dropdown">
+
+                    <i class="fa-solid fa-ellipsis"></i>
+
+                    <div class="dropdown-menu">
+
+                        <form action="{{ route('usuario.bloquear', $usuario->id) }}" method="POST">
+                            @csrf
+                            <button type="submit">
+                                Bloquear
+                            </button>
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        @empty
+
+        <div class="empty-connections">
+
+            <i class="fa-solid fa-user-group"></i>
+
+            <h3>Nenhuma conexão encontrada</h3>
+
+            <p>Comece encontrando pessoas para se conectar.</p>
+
+        </div>
+
+        @endforelse
+
+    </div>
+
+    {{-- SEGUIDORES --}}
+    <div class="tab-content" id="seguidores">
+
+        @forelse($seguidores as $follow)
+
+        <div class="connection-card">
+
+            <div class="connection-user">
+
+                <img src="{{ asset($follow->seguidor->foto) }}">
+
+                <div>
+
+                    <h4>{{ $follow->seguidor->name }}</h4>
+
+                    <span>{{ $follow->seguidor->curso }}</span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        @empty
+
+        <div class="empty-connections">
+            <i class="fa-solid fa-users"></i>
+            <h3>Nenhum seguidor encontrado</h3>
+        </div>
+
+        @endforelse
+
+    </div>
+
+    {{-- SEGUINDO --}}
+    <div class="tab-content" id="seguindo">
+
+        @forelse($seguindo as $follow)
+
+        <div class="connection-card">
+
+            <div class="connection-user">
+
+                <img src="{{ asset($follow->seguido->foto) }}">
+
+                <div>
+
+                    <h4>{{ $follow->seguido->name }}</h4>
+
+                    <span>{{ $follow->seguido->curso }}</span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        @empty
+
+        <div class="empty-connections">
+            <i class="fa-solid fa-user-check"></i>
+            <h3>Você não segue ninguém</h3>
+        </div>
+
+        @endforelse
+
+    </div>
+
+    {{-- SOLICITAÇÕES --}}
+    <div class="tab-content" id="solicitacoes">
+
+        @forelse($solicitacoes as $solicitacao)
+
+        <div class="request-card">
+
+            <div class="connection-user">
+
+                <img src="{{ asset($solicitacao->seguidor->foto) }}">
+
+                <div>
+
+                    <h4>{{ $solicitacao->seguidor->name }}</h4>
+
+                    <span>{{ $solicitacao->seguidor->curso }}</span>
+
+                </div>
+
+            </div>
+
+            <div class="request-actions">
+
+                <form action="{{ route('seguir.aceitar', $solicitacao->id) }}" method="POST">
+                    @csrf
+                    <button class="accept-btn">
+                        Aceitar
+                    </button>
+                </form>
+
+                <form action="{{ route('seguir.recusar', $solicitacao->id) }}" method="POST">
+                    @csrf
+                    <button class="remove-btn">
+                        Remover
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+
+        @empty
+
+        <div class="empty-connections">
+            <i class="fa-solid fa-user-clock"></i>
+            <h3>Nenhuma solicitação pendente</h3>
+        </div>
+
+        @endforelse
 
     </div>
 
 </div>
-
-            <!-- BOTÃO -->
-            <div class="load-more">
-
-                <button>
-                    Carregar mais
-                    <i class="fa-solid fa-chevron-down"></i>
-                </button>
-
-            </div>
-
+            
         </div>
 
         <!-- DIREITA -->
@@ -247,15 +409,45 @@
 
                 <div class="suggestions-list">
 
-                    <!-- Sugestão -->
-                    <div class="suggestion-item">
+    @forelse($sugestoes as $usuario)
 
+    <div class="suggestion-item">
 
-                </div>
+        <img src="{{ asset($usuario->foto) }}">
 
-                <a href="#" class="see-more">
-                    Ver mais sugestões >
-                </a>
+        <div>
+
+            <h4>{{ $usuario->name }}</h4>
+
+            <span>{{ $usuario->curso }}</span>
+
+        </div>
+
+        <form action="{{ route('seguir.enviar', $usuario->id) }}" method="POST">
+
+            @csrf
+
+            <button class="mini-connect-btn">
+                Conectar
+            </button>
+
+        </form>
+
+    </div>
+
+    @empty
+
+    <p class="empty-sidebar">
+        Nenhuma sugestão disponível.
+    </p>
+
+    @endforelse
+
+</div>
+
+<a href="#" class="see-more">
+    Ver mais sugestões >
+</a>
 
             </div>
 
@@ -268,7 +460,55 @@
 
                 </div>
 
-                <div class="requests-list">
+               <div class="requests-list">
+
+    @forelse($solicitacoes->take(3) as $solicitacao)
+
+    <div class="request-item">
+
+        <img src="{{ asset($solicitacao->seguidor->foto) }}">
+
+        <div class="request-info">
+
+            <h4>{{ $solicitacao->seguidor->name }}</h4>
+
+            <span>{{ $solicitacao->seguidor->curso }}</span>
+
+            <div class="request-buttons">
+
+                <form action="{{ route('seguir.aceitar', $solicitacao->id) }}" method="POST">
+                    @csrf
+
+                    <button class="accept-btn">
+                        Aceitar
+                    </button>
+
+                </form>
+
+                <form action="{{ route('seguir.recusar', $solicitacao->id) }}" method="POST">
+                    @csrf
+
+                    <button class="remove-btn">
+                        Remover
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    @empty
+
+    <p class="empty-sidebar">
+        Nenhuma solicitação.
+    </p>
+
+    @endforelse
+
+</div>
 
 
                      
@@ -292,11 +532,8 @@
 <script>
 
 const tabs = document.querySelectorAll(".tab-btn");
+const contents = document.querySelectorAll(".tab-content");
 
-const title = document.getElementById("empty-title");
-const text = document.getElementById("empty-text");
-const icon = document.getElementById("empty-icon");
-const sectionTitle = document.getElementById("section-title");
 tabs.forEach(tab => {
 
     tab.addEventListener("click", () => {
@@ -305,40 +542,15 @@ tabs.forEach(tab => {
             btn.classList.remove("active")
         );
 
+        contents.forEach(content =>
+            content.classList.remove("active")
+        );
+
         tab.classList.add("active");
 
-        switch(tab.dataset.tab){
-
-            case "todos":
-                icon.className = "fa-solid fa-user-group";
-                title.textContent = "Nenhuma conexão encontrada";
-                text.textContent = "Comece encontrando pessoas para se conectar.";
-                break;
-
-            case "seguidores":
-                icon.className = "fa-solid fa-users";
-                title.textContent = "Nenhum seguidor encontrado";
-                text.textContent = "Quando alguém seguir você aparecerá aqui.";
-                break;
-
-            case "seguindo":
-                icon.className = "fa-solid fa-user-check";
-                title.textContent = "Você não está seguindo ninguém";
-                text.textContent = "As pessoas que você seguir aparecerão aqui.";
-                break;
-
-            case "solicitacoes":
-                icon.className = "fa-solid fa-user-clock";
-                title.textContent = "Nenhuma solicitação pendente";
-                text.textContent = "Novas solicitações aparecerão aqui.";
-                break;
-
-            case "bloqueados":
-                icon.className = "fa-solid fa-user-slash";
-                title.textContent = "Nenhum usuário bloqueado";
-                text.textContent = "Usuários bloqueados aparecerão aqui.";
-                break;
-        }
+        document
+            .getElementById(tab.dataset.tab)
+            .classList.add("active");
 
     });
 

@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
+use App\Models\Follower;
+
 class AuthController extends Controller
 {
     // REGISTRO
@@ -181,4 +183,146 @@ public function atualizarPerfil(Request $request)
 
     return back();
 }
+
+public function seguir($id)
+{
+    $user = Auth::user();
+
+    if($user->id == $id){
+        return back();
+    }
+
+    $existe = Follower::where('seguidor_id', $user->id)
+        ->where('seguido_id', $id)
+        ->exists();
+
+    if(!$existe){
+
+        Follower::create([
+            'seguidor_id' => $user->id,
+            'seguido_id' => $id,
+            'status' => 'pendente'
+        ]);
+    }
+
+    return back();
+}
+
+public function aceitarSeguidor($id)
+{
+    $follow = Follower::findOrFail($id);
+
+    if($follow->seguido_id != Auth::id()){
+        abort(403);
+    }
+
+    $follow->status = 'aceito';
+
+    $follow->save();
+
+    return back();
+}
+
+public function recusarSeguidor($id)
+{
+    $follow = Follower::findOrFail($id);
+
+    if($follow->seguido_id != Auth::id()){
+        abort(403);
+    }
+
+    $follow->delete();
+
+    return back();
+}
+
+
+public function home()
+{
+    $user = Auth::user();
+
+    $usuariosIgnorados = Follower::where('seguidor_id', $user->id)
+        ->pluck('seguido_id');
+
+    $sugestoes = User::where('id', '!=', $user->id)
+        ->whereNotIn('id', $usuariosIgnorados)
+        ->inRandomOrder()
+        ->take(2)
+        ->get();
+
+    return view('auth.home', compact('sugestoes'));
+}
+
+public function conexoes()
+{
+    $user = Auth::user();
+
+    // QUEM SEGUE VOCÊ
+    $seguidores = Follower::where('seguido_id', $user->id)
+        ->where('status', 'aceito')
+        ->with('seguidor')
+        ->get();
+
+    // QUEM VOCÊ SEGUE
+    $seguindo = Follower::where('seguidor_id', $user->id)
+        ->where('status', 'aceito')
+        ->with('seguido')
+        ->get();
+
+    // SOLICITAÇÕES PENDENTES
+    $solicitacoes = Follower::where('seguido_id', $user->id)
+        ->where('status', 'pendente')
+        ->with('seguidor')
+        ->latest()
+        ->get();
+
+    // BLOQUEADOS
+    $bloqueados = Follower::where('seguidor_id', $user->id)
+        ->where('status', 'bloqueado')
+        ->with('seguido')
+        ->get();
+
+    // SUGESTÕES
+    $ignorados = Follower::where('seguidor_id', $user->id)
+        ->pluck('seguido_id');
+
+    $sugestoes = User::where('id', '!=', $user->id)
+        ->whereNotIn('id', $ignorados)
+        ->inRandomOrder()
+        ->take(3)
+        ->get();
+
+    return view('auth.conexoes', compact(
+        'seguidores',
+        'seguindo',
+        'solicitacoes',
+        'bloqueados',
+        'sugestoes'
+    ));
+}
+
+public function bloquear($id)
+{
+    $follow = Follower::where(function($q) use ($id){
+
+        $q->where('seguidor_id', Auth::id())
+          ->where('seguido_id', $id);
+
+    })->orWhere(function($q) use ($id){
+
+        $q->where('seguidor_id', $id)
+          ->where('seguido_id', Auth::id());
+
+    })->first();
+
+    if($follow){
+
+        $follow->status = 'bloqueado';
+        $follow->save();
+
+    }
+
+    return back();
+}
+
 }
