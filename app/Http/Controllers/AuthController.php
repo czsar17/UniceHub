@@ -1,17 +1,23 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\Atividade;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
     // REGISTRO
     public function register(Request $request)
     {
+        $request->merge([
+            'cpf' => preg_replace('/\D/', '', $request->cpf)
+        ]);
+
         $request->validate([
     'name' => 'required|min:3',
 
@@ -54,7 +60,8 @@ class AuthController extends Controller
             'email' => $request->email,
             'data_nascimento' => $request->data_nascimento,
             'tipo' => $request->tipo,
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->password),
+            'foto' => 'images/default-user.png',
         ]);
 
         // LOGIN AUTOMÁTICO
@@ -98,4 +105,80 @@ class AuthController extends Controller
 
         return redirect('/login');
     }
+
+    public function perfil()
+{
+    $atividades = Auth::user()
+        ->atividades()
+        ->latest()
+        ->take(5)
+        ->get();
+
+     return view('auth.perfil', compact('atividades'));
+}
+
+public function atualizarPerfil(Request $request)
+{
+    $user = Auth::user();
+
+    $request->validate([
+        'name' => 'required|max:255',
+        'email' => [
+            'required',
+            'email',
+            Rule::unique('users')->ignore($user->id),
+        ],
+        'telefone' => 'nullable|max:20',
+        'curso' => [
+            'nullable',
+            Rule::in([
+                'ADS',
+                'Análise e Desenvolvimento de Sistemas',
+                'Engenharia de Software',
+                'Ciência da Computação',
+            ]),
+        ],
+        'sobre_mim' => 'nullable|max:350',
+        'interesses_markdown' => 'nullable|string',
+        'tecnologias' => 'nullable|array|max:8',
+        'tecnologias.*' => 'nullable|string|max:30',
+    ]);
+
+    $user->name = $request->name;
+    $user->email = $request->email;
+    $user->telefone = $request->telefone;
+    $user->curso = $request->curso;
+    $user->sobre_mim = $request->sobre_mim;
+    $user->interesses_markdown = $request->interesses_markdown;
+
+    $tecnologias = collect($request->input('tecnologias', []))
+        ->map(fn ($tecnologia) => trim($tecnologia))
+        ->filter()
+        ->unique()
+        ->take(8)
+        ->values()
+        ->all();
+
+    $user->tecnologias = $tecnologias;
+
+    if($request->hasFile('foto')){
+
+        $arquivo = $request->file('foto');
+
+        $nomeArquivo = time().'.'.$arquivo->getClientOriginalExtension();
+
+        $arquivo->move(public_path('images/perfis'), $nomeArquivo);
+
+        $user->foto = 'images/perfis/'.$nomeArquivo;
+    }
+
+    $user->save();
+
+    Atividade::create([
+        'user_id' => $user->id,
+        'descricao' => 'Atualizou as informações do perfil'
+    ]);
+
+    return back();
+}
 }
