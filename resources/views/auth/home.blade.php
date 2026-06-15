@@ -1,3 +1,7 @@
+@php
+use Illuminate\Support\Facades\Auth;
+@endphp
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -38,9 +42,7 @@
 
       <div class="header-profile">
 
-        <img src="assets/user.png" class="profile-pic">
-
-        <i class="fa-solid fa-chevron-down"></i>
+        <img src="{{ asset(Auth::user()->foto) }}" class="profile-pic">
 
       </div>
 
@@ -54,70 +56,82 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
 
-      <div class="sidebar-content">
+    <div class="sidebar-content">
 
         <ul>
 
-          <li class="active">
-            <i class="fa-solid fa-house"></i>
-            Home
-          </li>
+            <li class="{{ request()->routeIs('home') ? 'active' : '' }}">
+                <a href="{{ route('home') }}">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Home</span>
+                </a>
+            </li>
 
-          <li>
-            <i class="fa-regular fa-user"></i>
-            Perfil
-          </li>
+            <li class="{{ request()->routeIs('perfil') ? 'active' : '' }}">
+                <a href="{{ route('perfil') }}">
+                    <i class="fa-regular fa-user"></i>
+                    <span>Perfil</span>
+                </a>
+            </li>
 
-          <li>
-            <i class="fa-solid fa-user-group"></i>
-            Conexões
-          </li>
+            <li class="{{ request()->routeIs('conexoes') ? 'active' : '' }}">
+                <a href="{{ route('conexoes') }}">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Conexões</span>
+                </a>
+            </li>
 
-          <li>
-            <i class="fa-regular fa-folder"></i>
-            Projetos
-          </li>
+            <li class="{{ request()->routeIs('projetos') ? 'active' : '' }}">
+                <a href="{{ route('projetos') }}">
+                    <i class="fa-regular fa-folder"></i>
+                    <span>Projetos</span>
+                </a>
+            </li>
 
-          <li>
-            <i class="fa-solid fa-gear"></i>
-            Configurações
-          </li>
+            <li class="{{ request()->routeIs('config') ? 'active' : '' }}">
+                <a href="{{ route('config') }}">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Configurações</span>
+                </a>
+            </li>
 
         </ul>
 
-      </div>
+    </div>
 
-      <!-- PERFIL INFERIOR -->
-      <div class="sidebar-bottom">
+    <!-- PERFIL INFERIOR -->
+    <div class="sidebar-bottom">
 
         <div class="sidebar-profile">
 
-          <img src="assets/user.png">
+            <img src="{{ asset(Auth::user()->foto) }}" class="profile-pic">
 
-          <div>
-            <h4>Samuel Monteiro</h4>
-            <span>Eng. de Software</span>
-          </div>
+            <div>
+                <h4>{{ Auth::user()->name }}</h4>
+                @if(Auth::user()->curso)
+                <span>{{ Auth::user()->curso }}</span>
+                @endif
+            </div>
 
         </div>
 
-       <form method="POST" action="/logout">
+        <form method="POST" action="/logout">
 
-    @csrf
+            @csrf
 
-    <button class="logout" type="submit">
+            <button class="logout" type="submit">
 
-        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
 
-        Sair
+                Sair
 
-    </button>
+            </button>
 
-</form>
+        </form>
 
-      </div>
+    </div>
 
-    </aside>
+</aside>
 
     <!-- FEED -->
     <section class="feed">
@@ -303,51 +317,56 @@
 
   </div>
 
-  <!-- PRIMEIRA SUGESTÃO -->
-  <div class="suggestion">
+<!-- SUGESTÕES DINÂMICAS -->
+@if($sugestoes->count() > 0)
 
-    <div class="suggestion-user">
+    @foreach($sugestoes as $usuario)
 
-      <img src="assets/user2.png">
+    <div class="suggestion">
 
-      <div>
+        <div class="suggestion-user">
 
-        <h4>Jason Stan</h4>
+            <img src="{{ asset($usuario->foto) }}">
 
-        <span>Ciência da Computação</span>
+            <div>
 
-      </div>
+                <h4>{{ $usuario->name }}</h4>
 
-    </div>
+                @if($usuario->curso)
+                    <span>{{ $usuario->curso }}</span>
+                @endif
 
-    <button>Conectar</button>
+            </div>
 
-  </div>
+        </div>
 
-  <!-- SEGUNDA SUGESTÃO -->
-  <div class="suggestion">
+        <form action="{{ route('seguir.enviar', $usuario->id) }}" method="POST">
 
-    <div class="suggestion-user">
+            @csrf
 
-      <img src="assets/user3.png">
+            <button type="submit">
+                Conectar
+            </button>
 
-      <div>
-
-        <h4>Cristiano Ronaldo</h4>
-
-        <span>ADS</span>
-
-      </div>
+        </form>
 
     </div>
 
-    <button>Conectar</button>
+    @endforeach
 
-  </div>
+@else
 
-</div>
-      <!-- Projetos -->
-      <!-- Projetos -->
+    <div class="empty-suggestions">
+
+        <i class="fa-solid fa-user-group"></i>
+
+        <p>Nenhum usuário encontrado para se conectar.</p>
+
+    </div>
+
+@endif
+
+    
 <div class="widget-card">
 
   <div class="widget-title">

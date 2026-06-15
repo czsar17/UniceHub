@@ -25,15 +25,22 @@ const imageBase = "/images";
 
 /* CPF */
 
+function formatarCPF(cpf) {
+    return cpf
+        .replace(/\D/g, "")
+        .slice(0, 11)
+        .replace(/(\d{3})(\d)/, "$1-$2")
+        .replace(/(\d{3})(\d)/, "$1-$2")
+        .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+}
+
 cpfInput.addEventListener("input", () => {
 
-    cpfInput.value =
-        cpfInput.value.replace(/\D/g, "");
-
-    cpfInput.value =
-        cpfInput.value.slice(0, 11);
+    cpfInput.value = formatarCPF(cpfInput.value);
 
 });
+
+cpfInput.value = formatarCPF(cpfInput.value);
 
 /* SUBMIT */
 
