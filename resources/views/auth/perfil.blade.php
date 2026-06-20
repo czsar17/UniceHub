@@ -4,13 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil - UniceHub</title>
+    
     <link rel="stylesheet" href="{{ asset('css/perfil.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 @php
-    $user = Auth::user();
+    $authUser = Auth::user();
+    $user = $perfilUser ?? $authUser;
+    $isOwnProfile = $user->id === $authUser->id;
+    $projetosPerfil = $projetosPerfil ?? collect();
+    $perfilFollowStatus = $perfilFollowStatus ?? null;
+    $seguidoresCount = $user->seguidores()->wherePivot('status', 'aceito')->count();
+    $seguindoCount = $user->seguindo()->wherePivot('status', 'aceito')->count();
     $cursos = [
         'ADS' => 'ADS',
         'Análise e Desenvolvimento de Sistemas' => 'Análise e Desenvolvimento de Sistemas',
@@ -39,10 +45,12 @@
             <img src="{{ asset('images/LOGOUNICEHUB-removebg-preview.png') }}" class="header-logo">
         </div>
 
-        <div class="search-box">
-            <input type="text" placeholder="Pesquisar...">
-            <i class="fa-solid fa-magnifying-glass"></i>
-        </div>
+        <form class="search-box" action="{{ route('buscar') }}" method="GET">
+            <input type="text" name="q" value="{{ request('q') }}" placeholder="Pesquisar pessoas e projetos...">
+            <button type="submit" aria-label="Pesquisar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </form>
 
         <div class="header-icons">
             <i class="fa-regular fa-bell notification"></i>
@@ -121,16 +129,18 @@
                 </div>
             @endif
 
-            <form id="formPerfil" action="/perfil/atualizar" method="POST" enctype="multipart/form-data">
+            <form id="formPerfil" action="{{ $isOwnProfile ? '/perfil/atualizar' : '#' }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <section class="profile-header">
                     <div class="profile-picture">
                         <img src="{{ asset($user->foto) }}" class="profile-pic">
-                        <label class="photo-edit-action" for="foto" aria-label="Alterar foto">
-                            <i class="fa-solid fa-camera"></i>
-                        </label>
-                        <input type="file" name="foto" id="foto" hidden disabled class="campo-edicao" accept="image/*">
+                        @if($isOwnProfile)
+                            <label class="photo-edit-action" for="foto" aria-label="Alterar foto">
+                                <i class="fa-solid fa-camera"></i>
+                            </label>
+                            <input type="file" name="foto" id="foto" hidden disabled class="campo-edicao" accept="image/*">
+                        @endif
                     </div>
 
                     <div class="profile-info">
@@ -158,21 +168,43 @@
                         </p>
 
                         <div class="profile-stats">
-                            <span>Projetos: {{ $user->quantidade_projetos }}</span>
-                            <span>Seguidores: {{ $user->seguidores }}</span>
-                            <span>Seguindo: {{ $user->seguindo }}</span>
+                            <span>Projetos: {{ $projetosPerfil->count() }}</span>
+                            <span>Seguidores: {{ $seguidoresCount }}</span>
+                            <span>Seguindo: {{ $seguindoCount }}</span>
                         </div>
                     </div>
 
                     <div class="profile-actions">
-                        <button type="button" id="btnCancelar" class="cancel-profile-btn" hidden>
-                            Cancelar
-                        </button>
+                        @if($isOwnProfile)
+                            <button type="button" id="btnCancelar" class="cancel-profile-btn" hidden>
+                                Cancelar
+                            </button>
 
-                        <button type="button" id="btnEditar" class="edit-project-btn">
-                            <i class="fa-solid fa-pen"></i>
-                            Editar Perfil
-                        </button>
+                            <button type="button" id="btnEditar" class="edit-project-btn">
+                                <i class="fa-solid fa-pen"></i>
+                                Editar Perfil
+                            </button>
+                        @else
+                            @if($perfilFollowStatus === 'aceito')
+                                <button type="button" class="edit-project-btn profile-status-btn" disabled>
+                                    <i class="fa-solid fa-user-check"></i>
+                                    Conectado
+                                </button>
+                            @elseif($perfilFollowStatus === 'pendente')
+                                <button type="button" class="edit-project-btn profile-status-btn" disabled>
+                                    <i class="fa-solid fa-clock"></i>
+                                    Solicitação enviada
+                                </button>
+                            @else
+                                <form action="{{ route('seguir.enviar', $user->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="edit-project-btn">
+                                        <i class="fa-solid fa-user-plus"></i>
+                                        Conectar
+                                    </button>
+                                </form>
+                            @endif
+                        @endif
                     </div>
                 </section>
 
@@ -323,9 +355,28 @@ console.log('UniceHub');
 
                 <section class="tab-content" id="projetos">
                     <div class="profile-card">
-                        <h2>Meus Projetos</h2>
-                        <div class="placeholder"></div>
-                        <button type="button" class="project-btn">Ver Projeto</button>
+                        <h2>{{ $isOwnProfile ? 'Meus Projetos' : 'Projetos de ' . $user->name }}</h2>
+
+                        <div class="profile-projects-grid">
+                            @forelse($projetosPerfil as $projeto)
+                                <a href="{{ route('projetos.show', $projeto) }}" class="profile-project-card">
+                                    <img src="{{ $projeto->capa ? asset($projeto->capa) : asset('images/loading.png') }}" alt="">
+                                    <div>
+                                        <div class="profile-project-title">
+                                            <h3>{{ $projeto->nome }}</h3>
+                                            <span>{{ $projeto->status }}</span>
+                                        </div>
+                                        <p>{{ Str::limit(strip_tags($projeto->descricao), 120) }}</p>
+                                        <div class="profile-project-meta">
+                                            <span>{{ $projeto->membros->count() }} membros</span>
+                                            <span>{{ $projeto->created_at->format('d/m/Y') }}</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            @empty
+                                <p>{{ $isOwnProfile ? 'Você ainda não participa de projetos.' : 'Esse usuário ainda não participa de projetos.' }}</p>
+                            @endforelse
+                        </div>
                     </div>
                 </section>
 

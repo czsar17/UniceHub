@@ -27,23 +27,37 @@ tabs.forEach((tab) => {
 });
 
 function atualizarContadorSobre() {
-    sobreContador.textContent = sobreMim.value.length;
+    if (sobreMim && sobreContador) {
+        sobreContador.textContent = sobreMim.value.length;
+    }
 }
 
 function getTecnologias() {
+    if (!techList) return [];
+
     return Array.from(techList.querySelectorAll(".tech-tag")).map((tag) =>
         tag.dataset.value.trim()
     );
 }
 
 function atualizarContadorTechs() {
+    if (!techCounter) return;
+
     const total = getTecnologias().length;
     techCounter.textContent = `${total}/8`;
-    btnAddTech.disabled = !editando || total >= 8;
-    techInput.disabled = !editando || total >= 8;
+
+    if (btnAddTech) {
+        btnAddTech.disabled = !editando || total >= 8;
+    }
+
+    if (techInput) {
+        techInput.disabled = !editando || total >= 8;
+    }
 }
 
 function criarTagTecnologia(valor) {
+    if (!techList) return;
+
     const tag = document.createElement("span");
     tag.className = "tech-tag";
     tag.dataset.value = valor;
@@ -67,6 +81,8 @@ function criarTagTecnologia(valor) {
 }
 
 function adicionarTecnologia() {
+    if (!techInput) return;
+
     const valor = techInput.value.trim().replace(/^#/, "");
 
     if (!valor) {
@@ -96,73 +112,94 @@ function alternarEdicao(ativo) {
         campo.disabled = !ativo;
     });
 
-    btnCancelar.hidden = !ativo;
-    btnEditar.type = "button";
-    btnEditar.innerHTML = ativo
-        ? '<i class="fa-solid fa-floppy-disk"></i> Salvar'
-        : '<i class="fa-solid fa-pen"></i> Editar Perfil';
+    if (btnCancelar) {
+        btnCancelar.hidden = !ativo;
+    }
+
+    if (btnEditar) {
+        btnEditar.type = "button";
+        btnEditar.innerHTML = ativo
+            ? '<i class="fa-solid fa-floppy-disk"></i> Salvar'
+            : '<i class="fa-solid fa-pen"></i> Editar Perfil';
+    }
 
     atualizarContadorTechs();
 }
 
-techList.addEventListener("click", (event) => {
-    const removeButton = event.target.closest(".remove-tech");
+if (techList) {
+    techList.addEventListener("click", (event) => {
+        const removeButton = event.target.closest(".remove-tech");
 
-    if (!removeButton || !editando) {
-        return;
-    }
+        if (!removeButton || !editando) {
+            return;
+        }
 
-    removeButton.closest(".tech-tag").remove();
-    atualizarContadorTechs();
-});
-
-btnAddTech.addEventListener("click", adicionarTecnologia);
-
-techInput.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-        event.preventDefault();
-        adicionarTecnologia();
-    }
-});
-
-sobreMim.addEventListener("input", atualizarContadorSobre);
-
-fotoInput.addEventListener("change", () => {
-    const arquivo = fotoInput.files[0];
-
-    if (!arquivo || !arquivo.type.startsWith("image/")) {
-        return;
-    }
-
-    if (previewFotoUrl) {
-        URL.revokeObjectURL(previewFotoUrl);
-    }
-
-    previewFotoUrl = URL.createObjectURL(arquivo);
-
-    fotosPerfil.forEach((foto) => {
-        foto.src = previewFotoUrl;
+        removeButton.closest(".tech-tag").remove();
+        atualizarContadorTechs();
     });
-});
+}
 
-btnEditar.addEventListener("click", (event) => {
-    event.preventDefault();
+if (btnAddTech) {
+    btnAddTech.addEventListener("click", adicionarTecnologia);
+}
 
-    if (!editando) {
-        alternarEdicao(true);
-        return;
-    }
+if (techInput) {
+    techInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            adicionarTecnologia();
+        }
+    });
+}
 
-    formPerfil.requestSubmit();
-});
+if (sobreMim) {
+    sobreMim.addEventListener("input", atualizarContadorSobre);
+}
 
-btnCancelar.addEventListener("click", () => {
-    window.location.reload();
-});
+if (fotoInput) {
+    fotoInput.addEventListener("change", () => {
+        const arquivo = fotoInput.files[0];
 
-formPerfil.addEventListener("submit", () => {
-    adicionarTecnologia();
-});
+        if (!arquivo || !arquivo.type.startsWith("image/")) {
+            return;
+        }
+
+        if (previewFotoUrl) {
+            URL.revokeObjectURL(previewFotoUrl);
+        }
+
+        previewFotoUrl = URL.createObjectURL(arquivo);
+
+        fotosPerfil.forEach((foto) => {
+            foto.src = previewFotoUrl;
+        });
+    });
+}
+
+if (btnEditar) {
+    btnEditar.addEventListener("click", (event) => {
+        event.preventDefault();
+
+        if (!editando) {
+            alternarEdicao(true);
+            return;
+        }
+
+        formPerfil.requestSubmit();
+    });
+}
+
+if (btnCancelar) {
+    btnCancelar.addEventListener("click", () => {
+        window.location.reload();
+    });
+}
+
+if (formPerfil && btnEditar) {
+    formPerfil.addEventListener("submit", () => {
+        adicionarTecnologia();
+    });
+}
 
 atualizarContadorSobre();
 atualizarContadorTechs();

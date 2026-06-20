@@ -28,13 +28,20 @@ use Illuminate\Support\Facades\Auth;
 
     </div>
 
-    <div class="search-box">
+    <form class="search-box" action="{{ route('buscar') }}" method="GET">
 
-      <input type="text" placeholder="Pesquisar...">
+    <input
+        type="text"
+        name="q"
+        value="{{ request('q') }}"
+        placeholder="Pesquisar pessoas e projetos..."
+    >
 
-      <i class="fa-solid fa-magnifying-glass"></i>
+    <button type="submit">
+        <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
 
-    </div>
+</form>
 
     <div class="header-icons">
 
