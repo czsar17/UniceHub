@@ -28,13 +28,13 @@
 
     </div>
 
-    <div class="search-box">
+    <form class="search-box" action="{{ route('buscar') }}" method="GET">
 
-      <input type="text" placeholder="Pesquisar...">
+      <input type="text" name="q" value="{{ request('q') }}" placeholder="Pesquisar pessoas e projetos...">
 
-      <i class="fa-solid fa-magnifying-glass"></i>
+      <button type="submit" aria-label="Pesquisar"><i class="fa-solid fa-magnifying-glass"></i></button>
 
-    </div>
+    </form>
 
     <div class="header-icons">
 
@@ -185,16 +185,18 @@
                     0 conexões
                 </span>
 
-                <div class="search-box">
+                <form class="search-box" action="{{ route('buscar') }}" method="GET">
 
                     <input
                         type="text"
-                        placeholder="Buscar conexão..."
+                        name="q"
+                        value="{{ request('q') }}"
+                        placeholder="Buscar pessoas e projetos..."
                     >
 
-                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <button type="submit" aria-label="Pesquisar"><i class="fa-solid fa-magnifying-glass"></i></button>
 
-                </div>
+                </form>
 
             </div>
 
@@ -212,7 +214,7 @@
 
         @forelse($todos as $usuario)
 
-        <div class="connection-card">
+        <div class="connection-card profile-nav-card" data-url="{{ route('usuarios.show', $usuario) }}">
 
             <div class="connection-user">
 
@@ -272,7 +274,7 @@
 
         @forelse($seguidores as $follow)
 
-        <div class="connection-card">
+        <div class="connection-card profile-nav-card" data-url="{{ route('usuarios.show', $follow->seguidor) }}">
 
             <div class="connection-user">
 
@@ -306,7 +308,7 @@
 
         @forelse($seguindo as $follow)
 
-        <div class="connection-card">
+        <div class="connection-card profile-nav-card" data-url="{{ route('usuarios.show', $follow->seguido) }}">
 
             <div class="connection-user">
 
@@ -338,9 +340,9 @@
     {{-- SOLICITAÇÕES --}}
     <div class="tab-content" id="solicitacoes">
 
-        @forelse($solicitacoes as $solicitacao)
+        @foreach($solicitacoes as $solicitacao)
 
-        <div class="request-card">
+        <div class="request-card profile-nav-card" data-url="{{ route('usuarios.show', $solicitacao->seguidor) }}">
 
             <div class="connection-user">
 
@@ -348,7 +350,10 @@
 
                 <div>
 
-                    <h4>{{ $solicitacao->seguidor->name }}</h4>
+                    <div class="request-title">
+                        <h4>{{ $solicitacao->seguidor->name }}</h4>
+                        <span class="request-tag follow-tag">Conexão</span>
+                    </div>
 
                     <span>{{ $solicitacao->seguidor->curso }}</span>
 
@@ -376,14 +381,59 @@
 
         </div>
 
-        @empty
+        @endforeach
+
+        @foreach($solicitacoesProjeto as $projeto)
+
+        <div class="request-card project-request profile-nav-card" data-url="{{ route('projetos.show', $projeto) }}">
+
+            <div class="connection-user">
+
+                <img src="{{ $projeto->capa ? asset($projeto->capa) : asset('images/loading.png') }}">
+
+                <div>
+
+                    <div class="request-title">
+                        <h4>{{ $projeto->nome }}</h4>
+                        <span class="request-tag project-tag">Projeto</span>
+                    </div>
+
+                    <span>Convite de {{ $projeto->criador->name ?? 'um usuário' }}</span>
+
+                </div>
+
+            </div>
+
+            <div class="request-actions">
+
+                <form action="{{ route('projetos.aceitar', $projeto) }}" method="POST">
+                    @csrf
+                    <button class="accept-btn">
+                        Aceitar
+                    </button>
+                </form>
+
+                <form action="{{ route('projetos.recusar', $projeto) }}" method="POST">
+                    @csrf
+                    <button class="remove-btn">
+                        Remover
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+
+        @endforeach
+
+        @if($solicitacoes->isEmpty() && $solicitacoesProjeto->isEmpty())
 
         <div class="empty-connections">
             <i class="fa-solid fa-user-clock"></i>
             <h3>Nenhuma solicitação pendente</h3>
         </div>
 
-        @endforelse
+        @endif
 
     </div>
 
@@ -411,7 +461,7 @@
 
     @forelse($sugestoes as $usuario)
 
-    <div class="suggestion-item">
+    <div class="suggestion-item profile-nav-card" data-url="{{ route('usuarios.show', $usuario) }}">
 
         <img src="{{ asset($usuario->foto) }}">
 
@@ -462,15 +512,18 @@
 
                <div class="requests-list">
 
-    @forelse($solicitacoes->take(3) as $solicitacao)
+    @foreach($solicitacoes->take(3) as $solicitacao)
 
-    <div class="request-item">
+    <div class="request-item profile-nav-card" data-url="{{ route('usuarios.show', $solicitacao->seguidor) }}">
 
         <img src="{{ asset($solicitacao->seguidor->foto) }}">
 
         <div class="request-info">
 
-            <h4>{{ $solicitacao->seguidor->name }}</h4>
+            <div class="request-title">
+                <h4>{{ $solicitacao->seguidor->name }}</h4>
+                <span class="request-tag follow-tag">Conexão</span>
+            </div>
 
             <span>{{ $solicitacao->seguidor->curso }}</span>
 
@@ -500,13 +553,58 @@
 
     </div>
 
-    @empty
+    @endforeach
+
+    @foreach($solicitacoesProjeto->take(3) as $projeto)
+
+    <div class="request-item project-request profile-nav-card" data-url="{{ route('projetos.show', $projeto) }}">
+
+        <img src="{{ $projeto->capa ? asset($projeto->capa) : asset('images/loading.png') }}">
+
+        <div class="request-info">
+
+            <div class="request-title">
+                <h4>{{ $projeto->nome }}</h4>
+                <span class="request-tag project-tag">Projeto</span>
+            </div>
+
+            <span>Convite de {{ $projeto->criador->name ?? 'um usuário' }}</span>
+
+            <div class="request-buttons">
+
+                <form action="{{ route('projetos.aceitar', $projeto) }}" method="POST">
+                    @csrf
+
+                    <button class="accept-btn">
+                        Aceitar
+                    </button>
+
+                </form>
+
+                <form action="{{ route('projetos.recusar', $projeto) }}" method="POST">
+                    @csrf
+
+                    <button class="remove-btn">
+                        Remover
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    @endforeach
+
+    @if($solicitacoes->isEmpty() && $solicitacoesProjeto->isEmpty())
 
     <p class="empty-sidebar">
         Nenhuma solicitação.
     </p>
 
-    @endforelse
+    @endif
 
 </div>
 
@@ -530,32 +628,50 @@
 </main>
 </div>
 <script>
-
 const tabs = document.querySelectorAll(".tab-btn");
 const contents = document.querySelectorAll(".tab-content");
+const sectionTitle = document.getElementById("section-title");
+const counter = document.querySelector(".counter");
 
-tabs.forEach(tab => {
+const titleByTab = {
+    todos: "Todas as conexões",
+    seguidores: "Seguidores",
+    seguindo: "Seguindo",
+    solicitacoes: "Solicitações",
+    bloqueados: "Bloqueados",
+};
 
+function updateCounter(tabName){
+    const activeContent = document.getElementById(tabName);
+    if (!activeContent || !counter) return;
+
+    const cards = activeContent.querySelectorAll(".connection-card, .request-card");
+    counter.textContent = `${cards.length} ${cards.length === 1 ? "item" : "itens"}`;
+}
+
+tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
-
-        tabs.forEach(btn =>
-            btn.classList.remove("active")
-        );
-
-        contents.forEach(content =>
-            content.classList.remove("active")
-        );
+        tabs.forEach((btn) => btn.classList.remove("active"));
+        contents.forEach((content) => content.classList.remove("active"));
 
         tab.classList.add("active");
-
-        document
-            .getElementById(tab.dataset.tab)
-            .classList.add("active");
-
+        document.getElementById(tab.dataset.tab).classList.add("active");
+        sectionTitle.textContent = titleByTab[tab.dataset.tab] || "Conexões";
+        updateCounter(tab.dataset.tab);
     });
-
 });
 
+document.addEventListener("click", (event) => {
+    const card = event.target.closest(".profile-nav-card");
+
+    if (!card || event.target.closest("button, a, form, input, .dropdown, .dropdown-menu")) {
+        return;
+    }
+
+    window.location.href = card.dataset.url;
+});
+
+updateCounter("todos");
 </script>
 </body>
 </html>

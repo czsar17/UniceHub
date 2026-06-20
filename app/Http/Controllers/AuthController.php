@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\Atividade;
+use App\Models\Projeto;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -108,15 +109,89 @@ class AuthController extends Controller
         return redirect('/login');
     }
 
-    public function perfil()
+    private function projetosDoUsuario(User $user)
 {
-    $atividades = Auth::user()
+    return Projeto::where(function ($query) use ($user) {
+        $query->where('user_id', $user->id)
+            ->orWhereHas('membros', function ($query) use ($user) {
+                $query->where('users.id', $user->id)
+                    ->where('projeto_user.status', 'aceito');
+            });
+    })
+        ->with(['criador', 'membros' => function ($query) {
+            $query->wherePivot('status', 'aceito');
+        }])
+        ->latest()
+        ->get();
+}
+
+public function perfil()
+{
+    $perfilUser = Auth::user();
+
+    $atividades = $perfilUser
         ->atividades()
         ->latest()
         ->take(5)
         ->get();
 
-     return view('auth.perfil', compact('atividades'));
+    $projetosPerfil = $this->projetosDoUsuario($perfilUser);
+    $perfilFollowStatus = null;
+
+    return view('auth.perfil', compact('atividades', 'perfilUser', 'projetosPerfil', 'perfilFollowStatus'));
+}
+
+public function visualizarUsuario(User $user)
+{
+    if ($user->id === Auth::id()) {
+        return redirect()->route('perfil');
+    }
+
+    $perfilUser = $user;
+
+    $atividades = $perfilUser
+        ->atividades()
+        ->latest()
+        ->take(5)
+        ->get();
+
+    $projetosPerfil = $this->projetosDoUsuario($perfilUser);
+    $perfilFollowStatus = Follower::where('seguidor_id', Auth::id())
+        ->where('seguido_id', $perfilUser->id)
+        ->value('status');
+
+    return view('auth.perfil', compact('atividades', 'perfilUser', 'projetosPerfil', 'perfilFollowStatus'));
+}
+
+public function buscar(Request $request)
+{
+    $termo = trim((string) $request->query('q', ''));
+
+    $usuarios = collect();
+    $projetos = collect();
+
+    if ($termo !== '') {
+        $usuarios = User::where('id', '!=', Auth::id())
+            ->where(function ($query) use ($termo) {
+                $query->where('name', 'like', "%{$termo}%")
+                    ->orWhere('curso', 'like', "%{$termo}%")
+                    ->orWhere('tipo', 'like', "%{$termo}%");
+            })
+            ->orderBy('name')
+            ->get();
+
+        $projetos = Projeto::with(['criador', 'membros'])
+            ->where(function ($query) use ($termo) {
+                $query->where('nome', 'like', "%{$termo}%")
+                    ->orWhere('categoria', 'like', "%{$termo}%")
+                    ->orWhere('status', 'like', "%{$termo}%")
+                    ->orWhere('descricao', 'like', "%{$termo}%");
+            })
+            ->latest()
+            ->get();
+    }
+
+    return view('auth.busca', compact('termo', 'usuarios', 'projetos'));
 }
 
 public function atualizarPerfil(Request $request)
@@ -146,13 +221,6 @@ public function atualizarPerfil(Request $request)
         'tecnologias.*' => 'nullable|string|max:30',
     ]);
 
-    $user->name = $request->name;
-    $user->email = $request->email;
-    $user->telefone = $request->telefone;
-    $user->curso = $request->curso;
-    $user->sobre_mim = $request->sobre_mim;
-    $user->interesses_markdown = $request->interesses_markdown;
-
     $tecnologias = collect($request->input('tecnologias', []))
         ->map(fn ($tecnologia) => trim($tecnologia))
         ->filter()
@@ -161,25 +229,31 @@ public function atualizarPerfil(Request $request)
         ->values()
         ->all();
 
-    $user->tecnologias = $tecnologias;
+    $user->fill([
+        'name' => $request->name,
+        'email' => $request->email,
+        'telefone' => $request->telefone,
+        'curso' => $request->curso,
+        'sobre_mim' => $request->sobre_mim,
+        'interesses_markdown' => $request->interesses_markdown,
+        'tecnologias' => $tecnologias,
+    ]);
 
     if($request->hasFile('foto')){
-
         $arquivo = $request->file('foto');
-
         $nomeArquivo = time().'.'.$arquivo->getClientOriginalExtension();
-
         $arquivo->move(public_path('images/perfis'), $nomeArquivo);
-
         $user->foto = 'images/perfis/'.$nomeArquivo;
     }
 
-    $user->save();
+    if ($user->isDirty() || $request->hasFile('foto')) {
+        $user->save();
 
-    Atividade::create([
-        'user_id' => $user->id,
-        'descricao' => 'Atualizou as informações do perfil'
-    ]);
+        Atividade::create([
+            'user_id' => $user->id,
+            'descricao' => 'Atualizou as informações do perfil'
+        ]);
+    }
 
     return back();
 }
@@ -276,6 +350,15 @@ public function conexoes()
         ->latest()
         ->get();
 
+    // CONVITES PENDENTES PARA PARTICIPAR DE PROJETOS
+    $solicitacoesProjeto = Projeto::whereHas('membros', function ($query) use ($user) {
+        $query->where('users.id', $user->id)
+            ->where('projeto_user.status', 'pendente');
+    })
+        ->with('criador')
+        ->latest()
+        ->get();
+
     // BLOQUEADOS
     $bloqueados = Follower::where('seguidor_id', $user->id)
         ->where('status', 'bloqueado')
@@ -292,12 +375,92 @@ public function conexoes()
         ->take(3)
         ->get();
 
+    $usuariosPesquisa = User::where('id', '!=', $user->id)
+        ->orderBy('name')
+        ->get();
+
+    $projetosPesquisa = Projeto::with(['criador', 'membros'])
+        ->latest()
+        ->get();
+
+    $relacoesUsuario = Follower::where(function ($query) use ($user) {
+        $query->where('seguidor_id', $user->id)
+            ->orWhere('seguido_id', $user->id);
+    })->get();
+
+    $statusUsuario = function (User $usuario) use ($relacoesUsuario, $user) {
+        $enviada = $relacoesUsuario->first(fn ($relacao) => (int) $relacao->seguidor_id === (int) $user->id && (int) $relacao->seguido_id === (int) $usuario->id);
+        $recebida = $relacoesUsuario->first(fn ($relacao) => (int) $relacao->seguidor_id === (int) $usuario->id && (int) $relacao->seguido_id === (int) $user->id);
+
+        if (($enviada && $enviada->status === 'bloqueado') || ($recebida && $recebida->status === 'bloqueado')) {
+            return ['label' => 'Bloqueado', 'can_follow' => false];
+        }
+
+        if (($enviada && $enviada->status === 'aceito') || ($recebida && $recebida->status === 'aceito')) {
+            return ['label' => 'Conectado', 'can_follow' => false];
+        }
+
+        if ($enviada && $enviada->status === 'pendente') {
+            return ['label' => 'Solicitação enviada', 'can_follow' => false];
+        }
+
+        if ($recebida && $recebida->status === 'pendente') {
+            return ['label' => 'Solicitação recebida', 'can_follow' => false];
+        }
+
+        return ['label' => 'Conectar', 'can_follow' => true];
+    };
+
+    $usuariosPreview = $usuariosPesquisa->map(function (User $usuario) use ($statusUsuario) {
+        $status = $statusUsuario($usuario);
+
+        return [
+            'id' => $usuario->id,
+            'type' => 'usuario',
+            'name' => $usuario->name,
+            'course' => $usuario->curso ?: 'Curso não informado',
+            'role' => ucfirst($usuario->tipo ?? 'usuário'),
+            'photo' => asset($usuario->foto ?: 'images/default-user.png'),
+            'about' => $usuario->sobre_mim ?: 'Este usuário ainda não adicionou uma descrição.',
+            'email' => $usuario->email,
+            'technologies' => $usuario->tecnologias ?? [],
+            'search' => trim($usuario->name . ' ' . $usuario->curso . ' ' . $usuario->tipo . ' ' . implode(' ', $usuario->tecnologias ?? [])),
+            'follow_url' => route('seguir.enviar', $usuario->id),
+            'follow_label' => $status['label'],
+            'can_follow' => $status['can_follow'],
+        ];
+    })->values();
+
+    $projetosPreview = $projetosPesquisa->map(function (Projeto $projeto) {
+        return [
+            'id' => $projeto->id,
+            'type' => 'projeto',
+            'name' => $projeto->nome,
+            'course' => $projeto->categoria ?: 'Projeto',
+            'role' => $projeto->status,
+            'photo' => $projeto->capa ? asset($projeto->capa) : asset('images/loading.png'),
+            'about' => strip_tags($projeto->descricao ?: 'Este projeto ainda não possui descrição.'),
+            'creator' => $projeto->criador->name ?? 'Criador não informado',
+            'technologies' => $projeto->tecnologias ?? [],
+            'members_count' => $projeto->membros->count(),
+            'created_at' => optional($projeto->created_at)->format('d/m/Y'),
+            'search' => trim($projeto->nome . ' ' . $projeto->categoria . ' ' . $projeto->status . ' ' . implode(' ', $projeto->tecnologias ?? [])),
+            'view_url' => route('projetos'),
+        ];
+    })->values();
+
     return view('auth.conexoes', compact(
         'seguidores',
         'seguindo',
         'solicitacoes',
+        'solicitacoesProjeto',
         'bloqueados',
-        'sugestoes'
+        'sugestoes',
+        'usuariosPesquisa',
+        'projetosPesquisa',
+        'relacoesUsuario',
+        'usuariosPreview',
+        'projetosPreview'
     ));
 }
 

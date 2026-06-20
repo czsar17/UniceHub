@@ -28,13 +28,20 @@
 
     </div>
 
-    <div class="search-box">
+    <form class="search-box" action="{{ route('buscar') }}" method="GET">
 
-      <input type="text" placeholder="Pesquisar...">
+    <input
+        type="text"
+        name="q"
+        value="{{ request('q') }}"
+        placeholder="Pesquisar pessoas e projetos..."
+    >
 
-      <i class="fa-solid fa-magnifying-glass"></i>
+    <button type="submit">
+        <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
 
-    </div>
+</form>
 
     <div class="header-icons">
 
@@ -143,355 +150,115 @@
                 </div>
 
                 <div class="project-actions">
+                    <a href="{{ route('projetoscad') }}">
+                        <button class="edit-project-btn" type="button">
+                            <i class="fa-solid fa-pen"></i>
+                            Editar Projetos
+                        </button>
+                    </a>
 
-    <a href="projetoscad.html">
-        <button class="edit-project-btn">
-            <i class="fa-solid fa-pen"></i>
-            Editar Projetos
-        </button>
-    </a>
-
-    <a href="projetosced.html">
-        <button class="new-project-btn">
-            <i class="fa-solid fa-plus"></i>
-            Novo Projeto
-        </button>
-    </a>
-
-</div>
+                    <a href="{{ route('projetoscad') }}">
+                        <button class="new-project-btn" type="button">
+                            <i class="fa-solid fa-plus"></i>
+                            Novo Projeto
+                        </button>
+                    </a>
+                </div>
 
             </div>
 
             <div class="projects-list">
+                @forelse($projetos as $projeto)
+                    <div class="project-card">
+                        <img
+                            src="{{ $projeto->capa ? asset($projeto->capa) : asset('images/loading.png') }}"
+                            class="project-logo">
 
-                <!-- CARD 1 -->
+                        <div class="project-info">
+                            <div class="project-top">
+                                <h3>{{ $projeto->nome }}</h3>
+                                <span class="status {{ $projeto->status === 'Concluído' ? 'active' : 'pending' }}">
+                                    {{ $projeto->status }}
+                                </span>
+                            </div>
 
-                <div class="project-card">
+                            <p class="project-description">
+                                {{ Str::limit(strip_tags($projeto->descricao), 180) }}
+                            </p>
 
-                    <img
-                    src="assets/loading.png"
-                    class="project-logo">
+                            <div class="tech-list">
+                                @foreach(($projeto->tecnologias ?? []) as $tech)
+                                    <span>{{ $tech }}</span>
+                                @endforeach
+                            </div>
 
-                    <div class="project-info">
-
-                        <div class="project-top">
-
-                            <h3>Projeto</h3>
-
-                            <span class="status active">
-                                Status
-                            </span>
-
+                            <div class="project-footer">
+                                <span>👥 {{ $projeto->membros->count() }} membros</span>
+                                <span>📅 {{ $projeto->created_at->format('d/m/Y') }}</span>
+                            </div>
                         </div>
 
-                        <p class="project-description">
-                            Descrição
-                        </p>
-
-                        <div class="tech-list">
-                            <span>Tec1</span>
-                            <span>Tec2</span>
-                            <span>Tec3</span>
-                        </div>
-
-                        <div class="project-footer">
-                            <span>👥 0 membros</span>
-                            <span>📅 00/00/0000</span>
-                        </div>
-
+                        @if($projeto->user_id === Auth::id())
+                            <div class="project-menu">
+                                <button class="project-menu-btn" type="button" aria-label="Mais opções">⋯</button>
+                                <div class="project-menu-dropdown">
+                                    <form action="{{ route('projetos.destroy', $projeto) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este projeto?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit">Excluir projeto</button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endif
                     </div>
-
-                </div>
-
-                <!-- CARD 2 -->
-
-                <div class="project-card">
-
-                    <img
-                    src="assets/loading.png"
-                    class="project-logo">
-
-                    <div class="project-info">
-
-                        <div class="project-top">
-
-                            <h3>Projeto Exemplo 2</h3>
-
-                            <span class="status active">
-                                Status
-                            </span>
-
-                        </div>
-
-                        <p class="project-description">
-                            Descrição.
-                        </p>
-
-                        <div class="tech-list">
-                            <span>Tec1</span>
-                            <span>Tec2</span>
-                            <span>Tec3</span>
-                        </div>
-
-                        <div class="project-footer">
-                            <span>👥 0 membros</span>
-                            <span>📅 00/00/0000</span>
-                        </div>
-
+                @empty
+                    <div class="empty-state">
+                        Nenhum projeto encontrado.
                     </div>
-
-                </div>
-
+                @endforelse
             </div>
 
         </div>
 
-        <!-- PAINEL DIREITO -->
-
         <div class="projects-right">
-
             <div class="filter-card">
-
                 <h3>Filtros</h3>
-
-                <input
-                type="text"
-                placeholder="Buscar projeto">
-
+                <input type="text" placeholder="Buscar projeto">
                 <select>
                     <option>Status</option>
                 </select>
-
                 <select>
                     <option>Tecnologia</option>
                 </select>
-
-                <button>
-                    Aplicar filtros
-                </button>
-
+                <button type="button">Aplicar filtros</button>
             </div>
 
             <div class="summary-card">
-
                 <h3>Resumo</h3>
-
                 <div class="summary-item">
                     <span>Projetos</span>
-                    <strong>00</strong>
+                    <strong>{{ $resumo['total'] }}</strong>
                 </div>
-
                 <div class="summary-item">
                     <span>Em andamento</span>
-                    <strong>0</strong>
+                    <strong>{{ $resumo['em_andamento'] }}</strong>
                 </div>
-
                 <div class="summary-item">
                     <span>Concluídos</span>
-                    <strong>0</strong>
+                    <strong>{{ $resumo['concluidos'] }}</strong>
                 </div>
-
                 <div class="summary-item">
                     <span>Arquivados</span>
-                    <strong>0</strong>
+                    <strong>{{ $resumo['arquivados'] }}</strong>
                 </div>
-
             </div>
-
         </div>
 
     </div>
 
 </div>
 
-    <!-- MAIN -->
-
-    <main class="content">
-
-        <header class="topbar">
-
-            <div>
-
-                <h1>Meus Projetos</h1>
-
-                <p>
-                    Gerencie e acompanhe seus projetos.
-                </p>
-
-            </div>
-
-            <button class="new-project">
-                <i class="fa-solid fa-plus"></i>
-                Novo Projeto
-            </button>
-
-        </header>
-
-        <div class="projects-layout">
-
-            <!-- LISTA -->
-
-            <section class="projects">
-
-                <div class="project-card">
-
-                    <img
-                    class="project-logo"
-                    src="assets/loading.png">
-
-                    <div class="project-info">
-
-                        <div class="project-header">
-
-                            <h2>Projeto</h2>
-
-                            <span class="status active-status">
-                                Status
-                            </span>
-
-                        </div>
-
-                        <p>
-                            Descrição
-                        </p>
-
-                        <div class="techs">
-
-                            <span>Tec1</span>
-                            <span>Tec2</span>
-                            <span>Tec3</span>
-
-                        </div>
-
-                        <div class="project-footer">
-
-                            <span>
-                                <i class="fa-regular fa-calendar"></i>
-                                00/00/0000
-                            </span>
-
-                            <span>
-                                <i class="fa-solid fa-users"></i>
-                                0 membros
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="project-card">
-
-                    <img
-                    class="project-logo"
-                    src="assets/loading.png">
-
-                    <div class="project-info">
-
-                        <div class="project-header">
-
-                            <h2>Projeto</h2>
-
-                            <span class="status active-status">
-                                Status
-                            </span>
-
-                        </div>
-
-                        <p>
-                            Descrição
-                        </p>
-
-                        <div class="techs">
-
-                            <span>Tec1</span>
-                            <span>Tec2</span>
-                            <span>Tec3</span>
-
-                        </div>
-
-                        <div class="project-footer">
-
-                            <span>
-                                <i class="fa-regular fa-calendar"></i>
-                                00/00/0000
-                            </span>
-
-                            <span>
-                                <i class="fa-solid fa-users"></i>
-                                0 membros
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-            <!-- LATERAL -->
-
-            <aside class="right-panel">
-
-                <div class="filter-box">
-
-                    <h3>Filtros</h3>
-
-                    <input
-                    type="text"
-                    placeholder="Buscar projeto">
-
-                    <select>
-                        <option>Status</option>
-                    </select>
-
-                    <select>
-                        <option>Tecnologia</option>
-                    </select>
-
-                    <button>
-                        Aplicar filtros
-                    </button>
-
-                </div>
-
-                <div class="summary-box">
-
-                    <h3>Resumo</h3>
-
-                    <div class="summary-item">
-                        <strong>0</strong>
-                        <span>Projetos</span>
-                    </div>
-
-                    <div class="summary-item">
-                        <strong>0</strong>
-                        <span>Em andamento</span>
-                    </div>
-
-                    <div class="summary-item">
-                        <strong>0</strong>
-                        <span>Concluídos</span>
-                    </div>
-
-                    <div class="summary-item">
-                        <strong>0</strong>
-                        <span>Arquivado</span>
-                    </div>
-
-                </div>
-
-            </aside>
-
-        </div>
-
-    </main>
-
-</div>
-
-<script src="projetos.js"></script>
+<script src="{{ asset('js/projetos.js') }}"></script>
 
 </body>
 </html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busca - UniceHub</title>
+    <link rel="stylesheet" href="{{ asset('css/perfil.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+@php($user = Auth::user())
+
+<body>
+    <header class="header">
+        <div class="header-left">
+            <i class="fa-solid fa-bars menu-icon"></i>
+            <img src="{{ asset('images/LOGOUNICEHUB-removebg-preview.png') }}" class="header-logo">
+        </div>
+
+        <form class="search-box" action="{{ route('buscar') }}" method="GET">
+            <input type="text" name="q" value="{{ $termo }}" placeholder="Pesquisar pessoas e projetos...">
+            <button type="submit" aria-label="Pesquisar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </form>
+
+        <div class="header-icons">
+            <i class="fa-regular fa-bell notification"></i>
+            <div class="header-profile">
+                <img src="{{ asset($user->foto) }}" class="profile-pic">
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="sidebar-content">
+                <ul>
+                    <li class="{{ request()->routeIs('home') ? 'active' : '' }}"><a href="{{ route('home') }}"><i class="fa-solid fa-house"></i><span>Home</span></a></li>
+                    <li class="{{ request()->routeIs('perfil') ? 'active' : '' }}"><a href="{{ route('perfil') }}"><i class="fa-regular fa-user"></i><span>Perfil</span></a></li>
+                    <li class="{{ request()->routeIs('conexoes') ? 'active' : '' }}"><a href="{{ route('conexoes') }}"><i class="fa-solid fa-user-group"></i><span>Conexões</span></a></li>
+                    <li class="{{ request()->routeIs('projetos*') ? 'active' : '' }}"><a href="{{ route('projetos') }}"><i class="fa-regular fa-folder"></i><span>Projetos</span></a></li>
+                    <li class="{{ request()->routeIs('config') ? 'active' : '' }}"><a href="{{ route('config') }}"><i class="fa-solid fa-gear"></i><span>Configurações</span></a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="sidebar-profile">
+                    <img src="{{ asset($user->foto) }}" class="profile-pic">
+                    <div>
+                        <h4>{{ $user->name }}</h4>
+                        @if($user->curso)<span>{{ $user->curso }}</span>@endif
+                    </div>
+                </div>
+                <form method="POST" action="/logout">
+                    @csrf
+                    <button class="logout" type="submit"><i class="fa-solid fa-arrow-right-from-bracket"></i>Sair</button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="profile-content search-page-content">
+            <section class="profile-header search-page-header">
+                <div class="profile-info">
+                    <h1 class="profile-title-text">Busca</h1>
+                    <h2>{{ $termo ? 'Resultados para "' . $termo . '"' : 'Pesquise pessoas e projetos' }}</h2>
+                    <div class="profile-stats">
+                        <span>Pessoas: {{ $usuarios->count() }}</span>
+                        <span>Projetos: {{ $projetos->count() }}</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="profile-tabs">
+                <button type="button" class="tab-btn active" data-tab="pessoas">Pessoas</button>
+                <button type="button" class="tab-btn" data-tab="projetos">Projetos</button>
+            </section>
+
+            <div class="search-results">
+    @forelse($usuarios as $usuario)
+        <a href="{{ route('usuarios.show', $usuario) }}" class="search-user-card">
+            <img src="{{ asset($usuario->foto) }}" alt="">
+
+            <div class="search-user-info">
+                <h3>{{ $usuario->name }}</h3>
+                <p>{{ $usuario->curso ?: 'Curso não informado' }}</p>
+            </div>
+
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+    @empty
+        <p>Nenhuma pessoa encontrada.</p>
+    @endforelse
+</div>
+
+            <section class="tab-content" id="projetos">
+                <div class="profile-card">
+                    <h2>Projetos encontrados</h2>
+                    <div class="profile-projects-grid">
+                        @forelse($projetos as $projeto)
+                            <a href="{{ route('projetos.show', $projeto) }}" class="profile-project-card">
+                                <img src="{{ $projeto->capa ? asset($projeto->capa) : asset('images/loading.png') }}" alt="">
+                                <div>
+                                    <div class="profile-project-title">
+                                        <h3>{{ $projeto->nome }}</h3>
+                                        <span>{{ $projeto->status }}</span>
+                                    </div>
+                                    <p>{{ Str::limit(strip_tags($projeto->descricao), 120) }}</p>
+                                    <div class="profile-project-meta">
+                                        <span>{{ $projeto->criador->name ?? 'Criador não informado' }}</span>
+                                        <span>{{ $projeto->membros->count() }} membros</span>
+                                    </div>
+                                </div>
+                            </a>
+                        @empty
+                            <p>{{ $termo ? 'Nenhum projeto encontrado.' : 'Digite algo na barra de pesquisa.' }}</p>
+                        @endforelse
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="{{ asset('js/perfil.js') }}"></script>
+</body>
+</html>
