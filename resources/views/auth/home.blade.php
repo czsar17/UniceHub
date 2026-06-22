@@ -141,48 +141,36 @@ use Illuminate\Support\Facades\Auth;
 </aside>
 
     <!-- FEED -->
-    <section class="feed">
+   <section class="feed">
 
-      <!-- POST -->
-      <div class="post-card">
+@forelse($projetosFeed as $projeto)
+
+<div class="post-card">
 
     <div class="post-top">
 
-        <!-- USUÁRIO -->
         <div class="post-user">
+            <img src="{{ asset($projeto->criador->foto) }}">
+              <div>
+              <h3>{{ $projeto->criador->name }}</h3>
 
-            <img src="assets/user5.png">
-
-            <div>
-
-                <h3>Thiago Vatira</h3>
-
-                <span>Eng. de Software</span>
-
+              <span>{{ $projeto->criador->curso }}</span>
             </div>
-
         </div>
 
-        <!-- LADO DIREITO -->
         <div class="post-right">
 
-            <span>há 10 horas</span>
+            <span>{{ $projeto->created_at->diffForHumans() }}</span>
 
-            <!-- 3 PONTOS -->
             <div class="options-area">
 
                 <i class="fa-solid fa-ellipsis options-btn"></i>
 
                 <div class="mini-option">
-
                     <div class="dismiss-post">
-
                         <i class="fa-solid fa-xmark"></i>
-
                         Dispensar
-
                     </div>
-
                 </div>
 
             </div>
@@ -191,124 +179,52 @@ use Illuminate\Support\Facades\Auth;
 
     </div>
 
-    <!-- CONTEÚDO -->
     <div class="post-content">
 
-        <h2>Projeto Mobile em Python</h2>
+        <h2>{{ $projeto->nome }}</h2>
 
-        <p>
-            Iniciei um novo projeto de aplicativo mobile voltado para
-            organização de estudos. Preciso de ajuda com interface
-            e integração de funcionalidades.
-        </p>
-
-        <div class="post-images">
-
-            <img src="assets/pythin.png">
-
-            <img src="assets/code.png">
-
-        </div>
+        <p>{{ $projeto->descricao }}</p>
 
     </div>
 
-</div>
-      <!-- parte dp segundo card (jp) -->
-<div class="post-card">
+    <div class="post-actions">
 
-  <div class="post-top">
+        <div class="left-actions">
 
-    <div class="post-user">
+            <form
+    action="{{ route('projetos.curtir', $projeto) }}"
+    method="POST"
+>
+    @csrf
 
-      <img src="assets/user4.png">
-
-      <div>
-
-        <h3>João Pedro</h3>
-
-        <span>Eng. de Software</span>
-
-      </div>
-
-    </div>
-
-    <div class="post-time">
-
-      <span>há 7 horas</span>
-
-     <div class="options-area">
-
-                <i class="fa-solid fa-ellipsis options-btn"></i>
-
-                <div class="mini-option">
-
-                    <div class="dismiss-post">
-
-                        <i class="fa-solid fa-xmark"></i>
-
-                        Dispensar
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-  <div class="post-content">
-
-    <h2>Projeto Laravel + Vue.js</h2>
-
-    <p>
-      Iniciei um novo projeto open source usando Laravel e Vue.js
-      para o desenvolvimento de um sistema de gerenciamento
-      colaborativo. Preciso de ajuda com frontend.
-      Alguém interessado em colaborar?
-    </p>
-
-    <div class="post-images">
-
-      <img src="assets/vue.png">
-
-      <img src="assets/code3.png">
-
-    </div>
-
-  </div>
-
-  <div class="post-actions">
-
-    <div class="left-actions">
-
-      <span>
+    <button type="submit" class="like-btn">
         <i class="fa-regular fa-heart"></i>
-        24
-      </span>
+        {{ $projeto->curtidas_count }}
+    </button>
+</form>
 
-      <span>
-        <i class="fa-regular fa-comment"></i>
-        9 Comentários
-      </span>
+            <button class="comment-btn" data-id="{{ $projeto->id }}">
+                <i class="fa-regular fa-comment"></i>
+                {{ $projeto->comentarios_count }}
+                Comentários
+            </button>
 
-      <span>
-        <i class="fa-solid fa-users"></i>
-        4 membros
-      </span>
+        </div>
 
     </div>
 
-    <button class="connect-btn">
-
-      Conectar
-
-    </button>
-
-  </div>
-
 </div>
-    </section>
+
+@empty
+
+<div class="post-card">
+    <h3>Nenhum projeto encontrado.</h3>
+</div>
+
+@endforelse
+
+</section>
+
 
     <!-- WIDGETS -->
     <aside class="widgets">
@@ -373,7 +289,8 @@ use Illuminate\Support\Facades\Auth;
 
 @endif
 
-    
+</div>    
+
 <div class="widget-card">
 
   <div class="widget-title">
@@ -481,8 +398,48 @@ use Illuminate\Support\Facades\Auth;
     </aside>
 
   </main>
-  
-  <script src="{{ asset('js/home.js') }}"></script>
+
+  <div id="commentModal" class="comment-modal">
+
+    <div class="comment-box">
+
+        <div class="comment-header">
+
+            <h3>Comentários</h3>
+
+            <button id="closeComments">
+    <i class="fa-solid fa-xmark"></i>
+</button>
+
+        </div>
+
+        <div id="commentsContainer">
+
+        </div>
+
+        <form
+    id="commentForm"
+    method="POST"
+>
+    @csrf
+
+    <input
+        type="text"
+        name="comentario"
+        id="commentText"
+        placeholder="Digite um comentário..."
+    >
+
+    <button type="submit">
+        Enviar
+    </button>
+</form>
+
+    </div>
+
+</div>
+
+<script src="{{ asset('js/home.js') }}"></script>
 
 </body>
 </body>

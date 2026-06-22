@@ -1,102 +1,32 @@
-function logout(){
-
+function logout() {
     window.location.href = "login.html";
-
 }
-// efeito
 
-const menuBtns =
-document.querySelectorAll(".menu-btn");
+// =========================
+// MENU POSTS
+// =========================
 
-menuBtns.forEach((btn) => {
-
-    btn.addEventListener("click", () => {
-
-        const menu =
-        btn.nextElementSibling;
-
-        document
-        .querySelectorAll(".post-menu")
-        .forEach((m) => {
-
-            if(m !== menu){
-                m.classList.remove("active");
-            }
-
-        });
-
-        menu.classList.toggle("active");
-
-    });
-
-});
-
-
-// DISPENSAR
-
-const dismissBtns =
-document.querySelectorAll(".dismiss-btn");
-
-dismissBtns.forEach((btn) => {
-
-    btn.addEventListener("click", () => {
-
-        const postCard =
-        btn.closest(".post-card");
-
-        postCard.classList.add("remove");
-
-        setTimeout(() => {
-
-            postCard.remove();
-
-        }, 400);
-
-    });
-
-});
-
-
-// FECHAR MENU AO CLICAR FORA
-
-document.addEventListener("click", (e) => {
-
-    if(!e.target.closest(".menu-container")){
-
-        document
-        .querySelectorAll(".post-menu")
-        .forEach((menu) => {
-
-            menu.classList.remove("active");
-
-        });
-
-    }
-
-});
-
-const optionBtns =
-document.querySelectorAll(".options-btn");
+const optionBtns = document.querySelectorAll(".options-btn");
 
 optionBtns.forEach((btn) => {
 
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", (e) => {
 
-        const option =
-        btn.nextElementSibling;
+        e.stopPropagation();
 
-        // fecha os outros
+        const option = btn.nextElementSibling;
+
+        if (!option) return;
+
         document
-        .querySelectorAll(".mini-option")
-        .forEach((menu) => {
+            .querySelectorAll(".mini-option")
+            .forEach((menu) => {
 
-            if(menu !== option){
+                if (menu !== option) {
+                    menu.classList.remove("show");
+                }
 
-                menu.classList.remove("show");
-
-            }
-
-        });
+            });
 
         option.classList.toggle("show");
 
@@ -104,8 +34,9 @@ optionBtns.forEach((btn) => {
 
 });
 
-
+// =========================
 // DISPENSAR POST
+// =========================
 
 const dismissPosts =
 document.querySelectorAll(".dismiss-post");
@@ -116,6 +47,8 @@ dismissPosts.forEach((btn) => {
 
         const card =
         btn.closest(".post-card");
+
+        if (!card) return;
 
         card.classList.add("remove-post");
 
@@ -129,21 +62,201 @@ dismissPosts.forEach((btn) => {
 
 });
 
-
-// FECHAR AO CLICAR FORA
+// =========================
+// FECHAR MENUS AO CLICAR FORA
+// =========================
 
 document.addEventListener("click", (e) => {
 
-    if(!e.target.closest(".options-area")){
+    if (!e.target.closest(".options-area")) {
 
         document
-        .querySelectorAll(".mini-option")
-        .forEach((menu) => {
+            .querySelectorAll(".mini-option")
+            .forEach((menu) => {
 
-            menu.classList.remove("show");
+                menu.classList.remove("show");
 
-        });
+            });
 
     }
 
 });
+
+// =========================
+// MODAL DE COMENTÁRIOS
+// =========================
+
+const modal =
+document.getElementById("commentModal");
+
+const closeBtn =
+document.getElementById("closeComments");
+
+const commentForm =
+document.getElementById("commentForm");
+
+const commentsContainer =
+document.getElementById("commentsContainer");
+
+// =========================
+// CARREGAR COMENTÁRIOS
+// =========================
+
+function carregarComentarios(projetoId) {
+
+    if (!commentsContainer) return;
+
+    commentsContainer.innerHTML = `
+        <div style="padding:20px;text-align:center;">
+            Carregando comentários...
+        </div>
+    `;
+
+    fetch(`/api/projetos/${projetoId}/comentarios`)
+    .then(response => {
+
+        if (!response.ok) {
+            throw new Error("Erro");
+        }
+
+        return response.json();
+
+    })
+    .then(comentarios => {
+
+        if (comentarios.length === 0) {
+
+            commentsContainer.innerHTML = `
+                <div style="
+                    padding:20px;
+                    text-align:center;
+                    color:#777;
+                ">
+                    Nenhum comentário ainda.
+                </div>
+            `;
+
+            return;
+        }
+
+        commentsContainer.innerHTML = "";
+
+        comentarios.forEach(comentario => {
+
+            const foto =
+                comentario.user?.foto ??
+                "images/default-user.png";
+
+            const nome =
+                comentario.user?.name ??
+                "Usuário";
+
+            commentsContainer.innerHTML += `
+                <div class="comment-item">
+
+                    <img
+                        src="/${foto}"
+                        class="comment-avatar"
+                    >
+
+                    <div class="comment-content">
+
+                        <strong>
+                            ${nome}
+                        </strong>
+
+                        <p>
+                            ${comentario.comentario}
+                        </p>
+
+                    </div>
+
+                </div>
+            `;
+
+        });
+
+    })
+    .catch(error => {
+
+        console.error(error);
+
+        commentsContainer.innerHTML = `
+            <div style="
+                padding:20px;
+                text-align:center;
+                color:red;
+            ">
+                Erro ao carregar comentários.
+            </div>
+        `;
+
+    });
+
+}
+
+// =========================
+// ABRIR MODAL
+// =========================
+
+document
+.querySelectorAll(".comment-btn")
+.forEach((btn) => {
+
+    btn.addEventListener("click", () => {
+
+        const projetoId =
+        btn.dataset.id;
+
+        console.log("Projeto:", projetoId);
+
+        if (modal) {
+            modal.classList.add("active");
+        }
+
+        if (commentForm) {
+
+            commentForm.action =
+            `/projetos/${projetoId}/comentar`;
+
+        }
+
+        carregarComentarios(projetoId);
+
+    });
+
+});
+
+// =========================
+// FECHAR MODAL
+// =========================
+
+if (closeBtn) {
+
+    closeBtn.addEventListener("click", () => {
+
+        if (modal) {
+            modal.classList.remove("active");
+        }
+
+    });
+
+}
+
+// =========================
+// FECHAR CLICANDO FORA
+// =========================
+
+if (modal) {
+
+    modal.addEventListener("click", (e) => {
+
+        if (e.target === modal) {
+
+            modal.classList.remove("active");
+
+        }
+
+    });
+
+}

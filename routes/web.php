@@ -43,6 +43,11 @@ Route::get('/usuarios/{user}', [AuthController::class, 'visualizarUsuario'])
     ->middleware('auth')
     ->name('usuarios.show');
 
+Route::get(
+    '/api/projetos/{projeto}/comentarios',
+    [ProjetoController::class, 'listarComentarios']
+)->middleware('auth');
+    
 Route::get('/buscar', [AuthController::class, 'buscar'])
     ->middleware('auth')
     ->name('buscar');
@@ -72,6 +77,34 @@ Route::get('/projetos', [ProjetoController::class, 'index'])
     Route::delete('/projetos/{projeto}/sair', [ProjetoController::class, 'sairProjeto'])
     ->middleware('auth')
     ->name('projetos.sair');
+
+    Route::get(
+    '/projetos/{projeto}/comentarios',
+    [ProjetoController::class, 'comentarios']
+)->middleware('auth');
+
+Route::post(
+    '/projetos/{projeto}/comentar',
+    [ProjetoController::class, 'comentar']
+)->middleware('auth')
+->name('projetos.comentar');
+
+Route::post(
+    '/projetos/{projeto}/comentar',
+    [ProjetoController::class, 'comentar']
+)->middleware('auth')
+->name('projetos.comentar');
+
+Route::delete(
+    '/comentarios/{comentario}',
+    [ProjetoController::class, 'excluirComentario']
+)->middleware('auth')
+->name('comentarios.excluir');
+
+    Route::post(
+    '/projetos/{projeto}/curtir',
+    [ProjetoController::class,'curtir']
+)->name('projetos.curtir');
 
 // cadastro de projetos
 Route::get('/projetoscad', [ProjetoController::class, 'create'])

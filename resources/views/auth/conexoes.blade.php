@@ -141,11 +141,6 @@
             <p>Conecte-se com pessoas e colabore em projetos juntos.</p>
         </div>
 
-        <button class="connect-btn">
-            <i class="fa-solid fa-plus"></i>
-            Conectar pessoas
-        </button>
-
     </section>
 
     <!-- CONTEÚDO -->
