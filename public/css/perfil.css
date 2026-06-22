@@ -1218,3 +1218,195 @@ body{
     background:#bb2d3b;
     transform:translateY(-2px);
 }
+
+#membros .profile-card{
+    height: calc(100vh - 320px);
+    display:flex;
+    flex-direction:column;
+}
+
+.profile-users-grid{
+    flex:1;
+    overflow-y:auto;
+
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+
+    padding-right:8px;
+}
+
+/* scrollbar */
+
+.profile-users-grid::-webkit-scrollbar{
+    width:8px;
+}
+
+.profile-users-grid::-webkit-scrollbar-thumb{
+    background:#73b98f;
+    border-radius:20px;
+}
+
+.profile-users-grid::-webkit-scrollbar-track{
+    background:transparent;
+}
+
+.profile-user-card{
+    display:flex;
+    align-items:center;
+    gap:16px;
+
+    padding:16px;
+
+    background:white;
+
+    border-radius:18px;
+
+    color:#243232;
+
+    transition:.2s;
+}
+
+.profile-user-card:hover{
+    transform:translateY(-2px);
+
+    box-shadow:
+    0 10px 20px rgba(0,0,0,.08);
+}
+
+.profile-user-card img{
+    width:70px;
+    height:70px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    flex-shrink:0;
+}
+
+.profile-user-card h3{
+    margin-bottom:4px;
+    font-size:18px;
+}
+
+.profile-user-card span{
+    color:#666;
+    font-size:14px;
+}
+
+.project-profile-picture {
+    position: relative;
+    flex-shrink: 0;
+}
+ 
+.project-profile-picture .photo-edit-action {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #86BC57;
+    color: white;
+    display: none;           /* oculto no modo leitura */
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+}
+ 
+.project-profile-picture .photo-edit-action:hover {
+    background: #76a94a;
+}
+ 
+/* Exibe o botão de câmera somente no modo edição */
+.projeto-editando .project-profile-picture .photo-edit-action {
+    display: flex;
+}
+ 
+/* Campo do projeto no modo leitura: sem borda */
+.campo-projeto:disabled {
+    background: transparent;
+    border: none;
+    cursor: default;
+    resize: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+ 
+/* Campo do projeto no modo edição: mesmo estilo de .campo-edicao */
+.campo-projeto:not(:disabled) {
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid #cbe8d8;
+    border-radius: 12px;
+    padding: 10px 12px;
+    box-shadow: 0 6px 14px rgba(47, 122, 102, 0.06);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+ 
+.campo-projeto:not(:disabled):focus {
+    border-color: #86BC57;
+    box-shadow: 0 0 0 3px rgba(134, 188, 87, 0.16);
+    outline: none;
+}
+ 
+/* Select de status sem seta nativa no modo leitura */
+select.campo-projeto:disabled {
+    -webkit-appearance: none;
+    appearance: none;
+    color: #334443;
+    font-weight: 600;
+    font-size: 15px;
+}
+ 
+/* Editor de descrição (Markdown) do projeto */
+#projetoDescricao {
+    display: none;          /* mostrado via JS só no modo edição */
+    width: 100%;
+    min-height: 200px;
+    flex: 1;
+    resize: vertical;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 14px;
+    line-height: 1.55;
+    color: #24292f;
+    border: 1px solid #cbe8d8;
+    border-radius: 12px;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.92);
+    box-shadow: 0 6px 14px rgba(47, 122, 102, 0.06);
+    margin-top: 12px;
+}
+ 
+#projetoDescricao:focus {
+    border-color: #86BC57;
+    box-shadow: 0 0 0 3px rgba(134, 188, 87, 0.16);
+    outline: none;
+}
+ 
+/* Tech editor do projeto (reutiliza o mesmo padrão do perfil) */
+#techEditorProjeto {
+    display: none;
+    margin: 14px 0 6px;
+}
+ 
+/* Exibe o editor de tecnologias no modo edição */
+.projeto-editando #techEditorProjeto {
+    display: grid;
+    grid-template-columns: 1fr 46px;
+    gap: 10px;
+}
+ 
+/* Remove-tech visível só no modo edição (controlado via JS) */
+#techListProjeto .remove-tech {
+    display: none;
+}
+ 
+/* Botão de cancelar (herda .cancel-profile-btn já existente) */
+#btnCancelarProjeto {
+    /* usa cancel-profile-btn — nenhum estilo extra necessário */
+}
+ 

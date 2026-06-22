@@ -324,7 +324,16 @@ public function home()
         ->take(2)
         ->get();
 
-    return view('auth.home', compact('sugestoes'));
+    $projetosFeed = Projeto::with('criador')
+        ->withCount('curtidas')
+        ->withCount('comentarios')
+        ->latest()
+        ->get();
+
+    return view('auth.home', compact(
+        'sugestoes',
+        'projetosFeed'
+    ));
 }
 
 public function conexoes()
