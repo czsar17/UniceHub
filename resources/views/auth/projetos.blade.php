@@ -1,264 +1,327 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Projetos - UniceHub</title>
-
-    <link rel="stylesheet" href="{{ asset('css/projetos.css') }}">
-
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projetos - UniceHub</title>
+  <link rel="stylesheet" href="{{ asset('css/base.css') }}">
+<link rel="stylesheet" href="{{ asset('css/app.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ route('theme.css') }}">
 </head>
 
 <body>
- <!-- HEADER -->
+
+  <!-- HEADER -->
   <header class="header">
-
     <div class="header-left">
-
       <i class="fa-solid fa-bars menu-icon"></i>
-
-      <img src="{{ asset('images/LOGOUNICEHUB-removebg-preview.png') }}" class="header-logo">
-
+      <img src="{{ asset($systemTheme['logo_path'] ?? 'images/LOGOUNICEHUB-removebg-preview.png') }}" class="header-logo">
     </div>
-
     <form class="search-box" action="{{ route('buscar') }}" method="GET">
-
-    <input
-        type="text"
-        name="q"
-        value="{{ request('q') }}"
-        placeholder="Pesquisar pessoas e projetos..."
-    >
-
-    <button type="submit">
-        <i class="fa-solid fa-magnifying-glass"></i>
-    </button>
-
-</form>
-
+      <input type="text" name="q" value="{{ request('q') }}" placeholder="Pesquisar pessoas e projetos...">
+      <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </form>
     <div class="header-icons">
-
       <i class="fa-regular fa-bell notification"></i>
-
       <div class="header-profile">
-
         <img src="{{ asset(Auth::user()->foto) }}" class="profile-pic">
-
       </div>
-
     </div>
-
   </header>
 
-    <div class="main-container">
- <!-- SIDEBAR -->
-        <aside class="sidebar">
+  <div class="main-container">
 
-    <div class="sidebar-content">
-
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-content">
         <ul>
-
-            <li class="{{ request()->routeIs('home') ? 'active' : '' }}">
-                <a href="{{ route('home') }}">
-                    <i class="fa-solid fa-house"></i>
-                    <span>Home</span>
-                </a>
-            </li>
-
-            <li class="{{ request()->routeIs('perfil') ? 'active' : '' }}">
-                <a href="{{ route('perfil') }}">
-                    <i class="fa-regular fa-user"></i>
-                    <span>Perfil</span>
-                </a>
-            </li>
-
-            <li class="{{ request()->routeIs('conexoes') ? 'active' : '' }}">
-                <a href="{{ route('conexoes') }}">
-                    <i class="fa-solid fa-user-group"></i>
-                    <span>Conexões</span>
-                </a>
-            </li>
-
-            <li class="{{ request()->routeIs('projetos') ? 'active' : '' }}">
-                <a href="{{ route('projetos') }}">
-                    <i class="fa-regular fa-folder"></i>
-                    <span>Projetos</span>
-                </a>
-            </li>
-
-            <li class="{{ request()->routeIs('config') ? 'active' : '' }}">
-                <a href="{{ route('config') }}">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Configurações</span>
-                </a>
-            </li>
-
+          <li class="{{ request()->routeIs('home')     ? 'active' : '' }}">
+            <a href="{{ route('home') }}"><i class="fa-solid fa-house"></i><span>Home</span></a>
+          </li>
+          <li class="{{ request()->routeIs('perfil')   ? 'active' : '' }}">
+            <a href="{{ route('perfil') }}"><i class="fa-regular fa-user"></i><span>Perfil</span></a>
+          </li>
+          <li class="{{ request()->routeIs('conexoes') ? 'active' : '' }}">
+            <a href="{{ route('conexoes') }}"><i class="fa-solid fa-user-group"></i><span>Conexões</span></a>
+          </li>
+          <li class="{{ request()->routeIs('projetos') ? 'active' : '' }}">
+            <a href="{{ route('projetos') }}"><i class="fa-regular fa-folder"></i><span>Projetos</span></a>
+          </li>
+          <li class="{{ request()->routeIs('config')   ? 'active' : '' }}">
+            <a href="{{ route('config') }}"><i class="fa-solid fa-gear"></i><span>Configurações</span></a>
+          </li>
         </ul>
-
-    </div>
-
-    <!-- PERFIL INFERIOR -->
-    <div class="sidebar-bottom">
-
+      </div>
+      <div class="sidebar-bottom">
         <div class="sidebar-profile">
-
-            <img src="{{ asset(Auth::user()->foto) }}" class="profile-pic">
-
-            <div>
-                <h4>{{ Auth::user()->name }}</h4>
-                @if(Auth::user()->curso)
-                <span>{{ Auth::user()->curso }}</span>
-                @endif
-            </div>
-
+          <img src="{{ asset(Auth::user()->foto) }}" class="profile-pic">
+          <div>
+            <h4>{{ Auth::user()->name }}</h4>
+            @if(Auth::user()->curso)<span>{{ Auth::user()->curso }}</span>@endif
+          </div>
         </div>
-
         <form method="POST" action="/logout">
-
-            @csrf
-
-            <button class="logout" type="submit">
-
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-
-                Sair
-
-            </button>
-
+          @csrf
+          <button class="logout" type="submit">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Sair
+          </button>
         </form>
+      </div>
+    </aside>
 
-    </div>
-
-</aside>
     <!-- CONTEÚDO -->
     <div class="projects-content">
 
-        <div class="projects-left">
+      <div class="projects-left">
 
-            <div class="projects-header">
-
-                <div>
-                    <h1>Meus Projetos</h1>
-                    <p>Gerencie e acompanhe seus projetos.</p>
-                </div>
-
-                <div class="project-actions">
-                    <a href="{{ route('projetoscad') }}">
-                        <button class="edit-project-btn" type="button">
-                            <i class="fa-solid fa-pen"></i>
-                            Editar Projetos
-                        </button>
-                    </a>
-
-                    <a href="{{ route('projetoscad') }}">
-                        <button class="new-project-btn" type="button">
-                            <i class="fa-solid fa-plus"></i>
-                            Novo Projeto
-                        </button>
-                    </a>
-                </div>
-
-            </div>
-
-            <div class="projects-list">
-                @forelse($projetos as $projeto)
-                    <div class="project-card">
-                        <img
-                            src="{{ $projeto->capa ? asset($projeto->capa) : asset('images/loading.png') }}"
-                            class="project-logo">
-
-                        <div class="project-info">
-                            <div class="project-top">
-                                <h3>{{ $projeto->nome }}</h3>
-                                <span class="status {{ $projeto->status === 'Concluído' ? 'active' : 'pending' }}">
-                                    {{ $projeto->status }}
-                                </span>
-                            </div>
-
-                            <p class="project-description">
-                                {{ Str::limit(strip_tags($projeto->descricao), 180) }}
-                            </p>
-
-                            <div class="tech-list">
-                                @foreach(($projeto->tecnologias ?? []) as $tech)
-                                    <span>{{ $tech }}</span>
-                                @endforeach
-                            </div>
-
-                            <div class="project-footer">
-                                <span>👥 {{ $projeto->membros->count() }} membros</span>
-                                <span>📅 {{ $projeto->created_at->format('d/m/Y') }}</span>
-                            </div>
-                        </div>
-
-                        @if($projeto->user_id === Auth::id())
-                            <div class="project-menu">
-                                <button class="project-menu-btn" type="button" aria-label="Mais opções">⋯</button>
-                                <div class="project-menu-dropdown">
-                                    <form action="{{ route('projetos.destroy', $projeto) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este projeto?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit">Excluir projeto</button>
-                                    </form>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                @empty
-                    <div class="empty-state">
-                        Nenhum projeto encontrado.
-                    </div>
-                @endforelse
-            </div>
-
+        <div class="projects-header">
+          <div>
+            <h1>Meus Projetos</h1>
+            <p>Gerencie e acompanhe seus projetos.</p>
+          </div>
+          <div class="project-actions">
+            <a href="{{ route('projetoscad') }}">
+              <button class="new-project-btn" type="button">
+                <i class="fa-solid fa-plus"></i> Novo Projeto
+              </button>
+            </a>
+          </div>
         </div>
 
-        <div class="projects-right">
-            <div class="filter-card">
-                <h3>Filtros</h3>
-                <input type="text" placeholder="Buscar projeto">
-                <select>
-                    <option>Status</option>
-                </select>
-                <select>
-                    <option>Tecnologia</option>
-                </select>
-                <button type="button">Aplicar filtros</button>
-            </div>
+        {{-- Convites pendentes --}}
+        @if($convites->count() > 0)
+          <div class="convites-section">
+            <h3 class="convites-titulo">
+              <i class="fa-solid fa-envelope"></i>
+              Convites pendentes ({{ $convites->count() }})
+            </h3>
+            @foreach($convites as $convite)
+              <div class="convite-card">
+                <div class="convite-info">
+                  <img src="{{ $convite->capa ? asset($convite->capa) : asset('images/loading.png') }}"
+                       class="convite-capa" alt="">
+                  <div>
+                    <strong>{{ $convite->nome }}</strong>
+                    <span>por {{ $convite->criador->name }}</span>
+                  </div>
+                </div>
+                <div class="convite-acoes">
+                  <form action="{{ route('projetos.aceitar', $convite) }}" method="POST" style="display:contents;">
+                    @csrf
+                    <button type="submit" class="btn-aceitar">
+                      <i class="fa-solid fa-check"></i> Aceitar
+                    </button>
+                  </form>
+                  <form action="{{ route('projetos.recusar', $convite) }}" method="POST" style="display:contents;">
+                    @csrf
+                    <button type="submit" class="btn-recusar">
+                      <i class="fa-solid fa-xmark"></i> Recusar
+                    </button>
+                  </form>
+                </div>
+              </div>
+            @endforeach
+          </div>
+        @endif
 
-            <div class="summary-card">
-                <h3>Resumo</h3>
-                <div class="summary-item">
-                    <span>Projetos</span>
-                    <strong>{{ $resumo['total'] }}</strong>
-                </div>
-                <div class="summary-item">
-                    <span>Em andamento</span>
-                    <strong>{{ $resumo['em_andamento'] }}</strong>
-                </div>
-                <div class="summary-item">
-                    <span>Concluídos</span>
-                    <strong>{{ $resumo['concluidos'] }}</strong>
-                </div>
-                <div class="summary-item">
-                    <span>Arquivados</span>
-                    <strong>{{ $resumo['arquivados'] }}</strong>
-                </div>
-            </div>
-        </div>
+        {{-- Lista de projetos --}}
+        <div class="projects-list">
 
-    </div>
-
+<div id="resultadoVazio"
+     class="empty-state"
+     style="display:none;">
+    <i class="fa-regular fa-folder-open"></i>
+    <p>Nenhum projeto encontrado com esses filtros.</p>
 </div>
 
-<script src="{{ asset('js/projetos.js') }}"></script>
+          @forelse($projetos as $projeto)
 
+            {{-- Card inteiro clicável + menu de opções separado --}}
+            <div class="project-card-wrapper">
+
+              <a href="{{ route('projetos.show', $projeto) }}" class="project-card">
+                <img src="{{ $projeto->capa ? asset($projeto->capa) : asset('images/loading.png') }}"
+                     class="project-logo" alt="{{ $projeto->nome }}">
+
+                <div class="project-info">
+                  <div class="project-top">
+                    <h3>{{ $projeto->nome }}</h3>
+                    <span class="status {{ $projeto->status === 'Concluído' ? 'active' : 'pending' }}">
+                      {{ $projeto->status }}
+                    </span>
+                  </div>
+
+                  <p class="project-description">
+                    {{ Str::limit(strip_tags($projeto->descricao), 180) }}
+                  </p>
+
+                  <div class="tech-list">
+                    @foreach(($projeto->tecnologias ?? []) as $tech)
+                      <span>{{ $tech }}</span>
+                    @endforeach
+                  </div>
+
+                  <div class="project-footer">
+                    <span>👥 {{ $projeto->membros->count() }} membros</span>
+                    <span>📅 {{ $projeto->created_at->format('d/m/Y') }}</span>
+                  </div>
+                </div>
+              </a>
+
+              {{-- Menu de opções (fora do <a> para não conflitar com o clique) --}}
+              @if($projeto->user_id === Auth::id())
+                <div class="project-menu">
+                  <button class="project-menu-btn" type="button" aria-label="Mais opções">⋯</button>
+                  <div class="project-menu-dropdown">
+                    <a href="{{ route('projetos.show', $projeto) }}" class="menu-item">
+                      <i class="fa-solid fa-eye"></i> Ver projeto
+                    </a>
+                    <form action="{{ route('projetos.destroy', $projeto) }}" method="POST"
+                          onsubmit="return confirm('Tem certeza que deseja excluir este projeto?')">
+                      @csrf
+                      @method('DELETE')
+                      <button type="submit" class="menu-item menu-item-danger">
+                        <i class="fa-solid fa-trash"></i> Excluir projeto
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              @endif
+
+            </div>
+
+          @empty
+            <div class="empty-state">
+              <i class="fa-regular fa-folder-open" style="font-size:48px;color:#cbe8d8;"></i>
+              <p>Nenhum projeto encontrado.</p>
+              <a href="{{ route('projetoscad') }}" class="new-project-btn" style="margin-top:12px;display:inline-flex;">
+                <i class="fa-solid fa-plus"></i> Criar primeiro projeto
+              </a>
+            </div>
+          @endforelse
+        </div>
+
+      </div>
+
+      <div class="projects-right">
+        <div class="filter-card">
+          <h3>Filtros</h3>
+          <input type="text" id="filtroNome" placeholder="Buscar projeto">
+          <select id="filtroStatus">
+            <option value="">Todos os status</option>
+            <option>Planejamento</option>
+            <option>Em desenvolvimento</option>
+            <option>Concluído</option>
+            <option>Arquivado</option>
+          </select>
+          <button type="button" onclick="aplicarFiltro()">Aplicar filtros</button>
+        </div>
+
+        <div class="summary-card">
+          <h3>Resumo</h3>
+          <div class="summary-item">
+            <span>Projetos</span>
+            <strong>{{ $resumo['total'] }}</strong>
+          </div>
+          <div class="summary-item">
+            <span>Em andamento</span>
+            <strong>{{ $resumo['em_andamento'] }}</strong>
+          </div>
+          <div class="summary-item">
+            <span>Concluídos</span>
+            <strong>{{ $resumo['concluidos'] }}</strong>
+          </div>
+          <div class="summary-item">
+            <span>Arquivados</span>
+            <strong>{{ $resumo['arquivados'] }}</strong>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="{{ asset('js/projetos.js') }}"></script>
+  <script>
+    // Filtro client-side simples
+function aplicarFiltro() {
+    const nome = document.getElementById('filtroNome').value.toLowerCase().trim();
+    const status = document
+    .getElementById('filtroStatus')
+    .value
+    .trim()
+    .toLowerCase();
+
+    let encontrados = 0;
+
+    document.querySelectorAll('.project-card-wrapper').forEach(wrapper => {
+
+        const titulo =
+            wrapper.querySelector('h3')?.textContent.toLowerCase() || '';
+
+        const descricao =
+            wrapper.querySelector('.project-description')?.textContent.toLowerCase() || '';
+
+        const statusProjeto =
+    wrapper.querySelector('.status')
+        ?.textContent
+        .trim()
+        .toLowerCase() || '';
+
+        const tecnologias = Array.from(
+            wrapper.querySelectorAll('.tech-list span')
+        )
+        .map(t => t.textContent.toLowerCase())
+        .join(' ');
+
+        const correspondeNome =
+            !nome ||
+            titulo.includes(nome) ||
+            descricao.includes(nome) ||
+            tecnologias.includes(nome);
+
+        const correspondeStatus =
+            !status ||
+            statusProjeto === status;
+
+        const mostrar =
+            correspondeNome &&
+            correspondeStatus;
+
+        wrapper.style.display = mostrar ? '' : 'none';
+
+        if (mostrar) encontrados++;
+    });
+
+    const vazio = document.getElementById('resultadoVazio');
+
+    if (vazio) {
+        vazio.style.display = encontrados ? 'none' : 'block';
+    }
+}
+
+    // Menu dropdown dos projetos
+    document.querySelectorAll('.project-menu-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const dropdown = btn.nextElementSibling;
+            document.querySelectorAll('.project-menu-dropdown').forEach(d => {
+                if (d !== dropdown) d.classList.remove('open');
+            });
+            dropdown.classList.toggle('open');
+        });
+    });
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.project-menu-dropdown').forEach(d => d.classList.remove('open'));
+    });
+
+    document.getElementById('filtroNome')
+    .addEventListener('input', aplicarFiltro);
+
+document.getElementById('filtroStatus')
+    .addEventListener('change', aplicarFiltro);
+  </script>
+  <script src="{{ asset('js/notifications.js') }}"></script>
 </body>
 </html>

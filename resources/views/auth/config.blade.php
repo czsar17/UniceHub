@@ -1,211 +1,174 @@
+@php use Illuminate\Support\Facades\Auth; @endphp
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Configurações - UniceHub</title>
-
-    <link rel="stylesheet" href="{{ asset('css/config.css') }}">
-
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
+    <link rel="stylesheet" href="{{ asset('css/base.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/config-extra.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ route('theme.css') }}">
 </head>
-
 <body>
- <!-- HEADER -->
+
+  <!-- HEADER -->
   <header class="header">
-
     <div class="header-left">
-
       <i class="fa-solid fa-bars menu-icon"></i>
-
-      <img src="{{ asset('images/LOGOUNICEHUB-removebg-preview.png') }}" class="header-logo">
-
+      <img src="{{ asset($systemTheme['logo_path'] ?? 'images/LOGOUNICEHUB-removebg-preview.png') }}" class="header-logo">
     </div>
-
     <form class="search-box" action="{{ route('buscar') }}" method="GET">
-
-    <input
-        type="text"
-        name="q"
-        value="{{ request('q') }}"
-        placeholder="Pesquisar pessoas e projetos..."
-    >
-
-    <button type="submit">
-        <i class="fa-solid fa-magnifying-glass"></i>
-    </button>
-
-</form>
-
+      <input type="text" name="q" value="{{ request('q') }}" placeholder="Pesquisar pessoas e projetos...">
+      <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </form>
     <div class="header-icons">
-
       <i class="fa-regular fa-bell notification"></i>
-
       <div class="header-profile">
-
-        <img src="assets/userx.png" class="profile-pic">
-
+        <img src="{{ asset(Auth::user()->foto) }}" class="profile-pic">
       </div>
-
     </div>
-
   </header>
 
-    <div class="main-container">
+  <div class="main-container">
 
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
-
-    <div class="sidebar-content">
-
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-content">
         <ul>
-
-            <li class="{{ request()->routeIs('home') ? 'active' : '' }}">
-                <a href="{{ route('home') }}">
-                    <i class="fa-solid fa-house"></i>
-                    <span>Home</span>
-                </a>
-            </li>
-
-            <li class="{{ request()->routeIs('perfil') ? 'active' : '' }}">
-                <a href="{{ route('perfil') }}">
-                    <i class="fa-regular fa-user"></i>
-                    <span>Perfil</span>
-                </a>
-            </li>
-
-            <li class="{{ request()->routeIs('conexoes') ? 'active' : '' }}">
-                <a href="{{ route('conexoes') }}">
-                    <i class="fa-solid fa-user-group"></i>
-                    <span>Conexões</span>
-                </a>
-            </li>
-
-            <li class="{{ request()->routeIs('projetos') ? 'active' : '' }}">
-                <a href="{{ route('projetos') }}">
-                    <i class="fa-regular fa-folder"></i>
-                    <span>Projetos</span>
-                </a>
-            </li>
-
-            <li class="{{ request()->routeIs('config') ? 'active' : '' }}">
-                <a href="{{ route('config') }}">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Configurações</span>
-                </a>
-            </li>
-
+          <li class="{{ request()->routeIs('home')     ? 'active' : '' }}">
+            <a href="{{ route('home') }}"><i class="fa-solid fa-house"></i><span>Home</span></a>
+          </li>
+          <li class="{{ request()->routeIs('perfil')   ? 'active' : '' }}">
+            <a href="{{ route('perfil') }}"><i class="fa-regular fa-user"></i><span>Perfil</span></a>
+          </li>
+          <li class="{{ request()->routeIs('conexoes') ? 'active' : '' }}">
+            <a href="{{ route('conexoes') }}"><i class="fa-solid fa-user-group"></i><span>Conexões</span></a>
+          </li>
+          <li class="{{ request()->routeIs('projetos') ? 'active' : '' }}">
+            <a href="{{ route('projetos') }}"><i class="fa-regular fa-folder"></i><span>Projetos</span></a>
+          </li>
+          <li class="{{ request()->routeIs('config')   ? 'active' : '' }}">
+            <a href="{{ route('config') }}"><i class="fa-solid fa-gear"></i><span>Configurações</span></a>
+          </li>
         </ul>
-
-    </div>
-
-    <!-- PERFIL INFERIOR -->
-    <div class="sidebar-bottom">
-
+      </div>
+      <div class="sidebar-bottom">
         <div class="sidebar-profile">
-
-             <img src="{{ asset(Auth::user()->foto) }}" class="profile-pic">
-
-            <div>
-                <h4>{{ Auth::user()->name }}</h4>
-                @if(Auth::user()->curso)
-                <span>{{ Auth::user()->curso }}</span>
-                @endif
-            </div>
-
+          <img src="{{ asset(Auth::user()->foto) }}" class="profile-pic">
+          <div>
+            <h4>{{ Auth::user()->name }}</h4>
+            @if(Auth::user()->curso)<span>{{ Auth::user()->curso }}</span>@endif
+          </div>
         </div>
-
         <form method="POST" action="/logout">
-
-            @csrf
-
-            <button class="logout" type="submit">
-
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-
-                Sair
-
-            </button>
-
+          @csrf
+          <button class="logout" type="submit">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Sair
+          </button>
         </form>
+      </div>
+    </aside>
 
-    </div>
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="cfg-main">
 
-</aside>
-     <main class="connections-container">
+      <!-- Breadcrumb -->
+      <div class="cfg-breadcrumb">
+        <a href="{{ route('config') }}">Configurações</a>
+        <i class="fa-solid fa-chevron-right"></i>
+        <span id="configBreadcrumb">Informações pessoais</span>
+      </div>
 
-    <section class="settings-container">
+      <div class="cfg-page-title">
+        <h1>Configurações</h1>
+        <p>Gerencie suas preferências e configurações da conta.</p>
+      </div>
 
-        <aside class="settings-menu">
+      <div class="cfg-layout">
 
-            <div class="menu-group">
-                <h3>Conta</h3>
+        <!-- Menu lateral -->
+        <aside class="cfg-sidebar-menu">
+          <div class="menu-group">
+            <h3>Conta</h3>
+            <button class="menu-item active" data-page="perfil" data-label="Informações pessoais">
+              <i class="fa-regular fa-user"></i> Informações pessoais
+            </button>
+            <button class="menu-item" data-page="seguranca" data-label="Segurança">
+              <i class="fa-solid fa-shield-halved"></i> Segurança
+            </button>
+            <button class="menu-item" data-page="notificacoes" data-label="Notificações">
+              <i class="fa-regular fa-bell"></i> Notificações
+            </button>
+            <button class="menu-item" data-page="tipoPerfil" data-label="Tipo de perfil">
+              <i class="fa-solid fa-user-tag"></i> Tipo de perfil
+            </button>
+          </div>
 
-                <button class="menu-item active" data-page="perfil">
-                    Informações pessoais
-                </button>
+          @if(Auth::user()->is_admin)
+          <div class="menu-group">
+            <h3>Admin</h3>
+            <button class="menu-item" data-page="personalizacaoAdm" data-label="Personalização ADM">
+              <i class="fa-solid fa-palette"></i> Personalização
+            </button>
+            <button class="menu-item" data-page="usuariosAdm" data-label="Usuários ADM">
+              <i class="fa-solid fa-users-gear"></i> Usuários
+            </button>
+          </div>
+          @endif
 
-                <button class="menu-item" data-page="seguranca">
-                    Segurança
-                </button>
-
-                <button class="menu-item" data-page="notificacoes">
-                    Notificações
-                </button>
-
-                <button class="menu-item" data-page="tipoPerfil">
-                    Tipo de perfil
-                </button>
-            </div>
-
-            <div class="menu-group">
-                <h3>Sistema</h3>
-
-                <button class="menu-item" data-page="sobre">
-                    Sobre o UniceHub
-                </button>
-
-                <button class="menu-item">
-                    Status do sistema
-                </button>
-
-                <button class="menu-item">
-                    Política de privacidade
-                </button>
-            </div>
-
-            <div class="menu-group">
-                <h3>Admin</h3>
-
-                <button class="menu-item">
-                    Personalização
-                </button>
-            </div>
-
+          <div class="menu-group">
+            <h3>Sistema</h3>
+            <button class="menu-item" data-page="sobre" data-label="Sobre o UniceHub">
+              <i class="fa-solid fa-circle-info"></i> Sobre o UniceHub
+            </button>
+            <button class="menu-item" data-page="privacidade" data-label="Política de privacidade">
+              <i class="fa-solid fa-file-shield"></i> Política de privacidade
+            </button>
+          </div>
         </aside>
 
-        <div class="settings-content">
-
-            <div class="page-header">
-                <h1>Configurações</h1>
-                <p>Gerencie suas preferências e configurações da conta.</p>
-            </div>
-
-            
-            <div class="config-card" id="configContent"></div>
-
+        <!-- Área de conteúdo rolável -->
+        <div class="cfg-content-area">
+          <div class="cfg-card" id="configContent"></div>
         </div>
 
-    </section>
-
-</main>
-    <script src="{{ asset('js/config.js') }}"></script>
+      </div>
     </main>
+  </div>
 
-</section>
+  <!-- Dados do usuário para o JS (sem expor dados sensíveis) -->
+  <script>
+    window.cfgUser = {
+      name:           @json(Auth::user()->name),
+      email:          @json(Auth::user()->email),
+      cpf:            @json(Auth::user()->cpf),
+      data_nascimento:@json(Auth::user()->data_nascimento),
+      telefone:       @json(Auth::user()->telefone ?? ''),
+      curso:          @json(Auth::user()->curso ?? ''),
+      tipo:           @json(Auth::user()->tipo),
+      isAdmin:        @json((bool) Auth::user()->is_admin),
+      sobre_mim:      @json(Auth::user()->sobre_mim ?? ''),
+      interesses_markdown: @json(Auth::user()->interesses_markdown ?? ''),
+      tecnologias:    @json(Auth::user()->tecnologias ?? []),
+      csrfToken:      @json(csrf_token()),
+      updateUrl:      @json(route('perfil.atualizar')),
+      passwordUrl:    @json(route('config.senha')),
+    };
+
+    window.cfgAdmin = {
+      isAdmin:        @json((bool) Auth::user()->is_admin),
+      theme:          @json($systemTheme),
+      usersUrl:       @json(route('admin.usuarios')),
+      userUpdateUrl:  @json(route('admin.usuarios.atualizar')),
+      themeSaveUrl:   @json(route('admin.tema.salvar')),
+      themeResetUrl:  @json(route('admin.tema.restaurar')),
+      themeCssUrl:    @json(route('theme.css')),
+    };
+  </script>
+  <script src="{{ asset('js/config.js') }}"></script>
+  <script src="{{ asset('js/notifications.js') }}"></script>
+</body>
+</html>

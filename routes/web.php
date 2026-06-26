@@ -16,6 +16,8 @@ Route::get('/login', function () {
 
 Route::post('/login', [AuthController::class, 'login']);
 
+Route::get('/theme.css', [AuthController::class, 'themeCss'])->name('theme.css');
+
 
 // REGISTRO
 Route::get('/registro', function () {
@@ -51,6 +53,10 @@ Route::get(
 Route::get('/buscar', [AuthController::class, 'buscar'])
     ->middleware('auth')
     ->name('buscar');
+
+Route::get('/notificacoes/header', [AuthController::class, 'notificacoesHeader'])
+    ->middleware('auth')
+    ->name('notificacoes.header');
 
 
     Route::post(
@@ -167,3 +173,32 @@ Route::post('/bloquear/{id}', [AuthController::class, 'bloquear'])
     
 // LOGOUT
 Route::post('/logout', [AuthController::class, 'logout']);
+
+
+Route::get('/config', [AuthController::class, 'config'])
+    ->middleware('auth')
+    ->name('config');
+
+Route::post('/config/senha', [AuthController::class, 'trocarSenha'])
+    ->middleware('auth')
+    ->name('config.senha');
+
+Route::get('/config/admin/usuarios', [AuthController::class, 'adminUsuarios'])
+    ->middleware('auth')
+    ->name('admin.usuarios');
+
+Route::post('/config/admin/usuarios', [AuthController::class, 'adminAtualizarUsuario'])
+    ->middleware('auth')
+    ->name('admin.usuarios.atualizar');
+
+Route::post('/config/admin/tema', [AuthController::class, 'adminAtualizarTema'])
+    ->middleware('auth')
+    ->name('admin.tema.salvar');
+
+Route::post('/config/admin/tema/restaurar', [AuthController::class, 'adminRestaurarTema'])
+    ->middleware('auth')
+    ->name('admin.tema.restaurar');
+
+Route::post('/perfil/atualizar', [AuthController::class, 'atualizarPerfil'])
+    ->middleware('auth')
+    ->name('perfil.atualizar');

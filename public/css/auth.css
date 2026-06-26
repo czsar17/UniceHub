@@ -1,0 +1,664 @@
+/* =============================================================
+   auth.css — Login, Registro e Esqueci a Senha
+   NÃO depende de base.css (layout completamente diferente)
+   ============================================================= */
+
+/* ── VARIÁVEIS ── */
+:root {
+    --auth-primary:   #2D6A63;
+    --auth-secondary: #FF7A1A;
+    --auth-text:      #21433d;
+    --auth-text-leve: #7a8a86;
+    --auth-border:    #dce7e3;
+    --auth-shadow:    0 10px 35px rgba(0, 0, 0, 0.08);
+    --font-principal: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+/* ── RESET ── */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-principal);
+}
+
+/* ── BODY ── */
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url("../images/bgg-image.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow-y: auto;
+}
+
+/* ── ANIMAÇÃO ── */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── HEADER DA PÁGINA ── */
+.main-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 77px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 55px;
+    z-index: 9999;
+    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.80);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    z-index: 10000;
+    gap: 12px;
+}
+
+.logo-area img {
+    width: clamp(180px, 25vw, 290px);
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.10));
+    opacity: 1;
+}
+
+/* ── CONTAINER CENTRAL ── */
+.container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ── CARD GENÉRICO (login + esqueci) ── */
+.login-card {
+    width: 430px;
+    padding: 45px;
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
+    text-align: center;
+    animation: fadeUp 0.8s ease;
+}
+
+.logo     { width: 180px; margin-bottom: 25px; }
+h1        { color: var(--auth-primary); font-size: 42px; margin-bottom: 10px; }
+p         { color: #6d6d6d; font-size: 17px; line-height: 1.5; margin-bottom: 28px; }
+
+/* ── INPUT BOX ── */
+.input-box {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
+    transition: 0.3s;
+}
+
+.input-box:focus-within {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.10);
+}
+
+.input-box i { color: #5b8f84; font-size: 18px; }
+
+.input-box input {
+    width: 100%;
+    border: none;
+    outline: none;
+    margin-left: 12px;
+    font-size: 16px;
+    background: none;
+}
+
+/* ── BOTÃO PRINCIPAL ── */
+button {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ff7a00, #ff9100);
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.35s;
+    box-shadow: 0 8px 20px rgba(255, 122, 0, 0.25);
+}
+
+button:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 12px 25px rgba(255, 122, 0, 0.35);
+}
+
+button:active { transform: scale(0.98); }
+
+/* ── LINKS ── */
+.forgot {
+    display: block;
+    text-align: right;
+    margin-bottom: 20px;
+    color: #7a9d94;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.register {
+    display: block;
+    margin-top: 24px;
+    color: #666;
+    font-size: 15px;
+}
+
+.register a {
+    color: #ff7a00;
+    font-weight: bold;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.register a:hover { opacity: 0.7; }
+
+/* ── VER SENHA ── */
+#toggleSenha {
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 18px;
+    color: #5b8f84;
+}
+
+/* ── REGRAS DE SENHA ── */
+.password-rules {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.rule {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #666;
+}
+
+.circle {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ccc;
+    transition: 0.3s;
+}
+
+.valid        { color: #00b894; }
+.valid .circle { background: #00b894; }
+
+/* ── RESPONSIVO (login / esqueci) ── */
+@media (max-width: 500px) {
+    .login-card { width: 90%; padding: 35px 25px; }
+    h1          { font-size: 34px; }
+    .logo       { width: 150px; }
+}
+
+
+/* ================================================================
+   REGISTRO — estilos adicionais (user selector + form completo)
+   ================================================================ */
+
+html { font-size: clamp(14px, 0.9vw, 16px); }
+
+body.registro {
+    padding: 120px 20px 40px;
+    align-items: flex-start;
+}
+
+.container.registro {
+    position: relative;
+    z-index: 2;
+    min-height: calc(100vh - 120px);
+    max-width: 1180px;
+    margin: 0 auto;
+    gap: 32px;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: minmax(250px, 320px) minmax(0, 640px);
+    align-items: center;
+    justify-content: center;
+}
+
+/* Seletor de tipo de usuário */
+.user-selector {
+    background: rgba(255, 255, 255, 0.80);
+    border: 1px solid rgba(255, 255, 255, 0.50);
+    backdrop-filter: blur(12px);
+    border-radius: 28px;
+    padding: 30px;
+    box-shadow: var(--auth-shadow);
+}
+
+.user-selector h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: var(--auth-text);
+    font-size: 1.8rem;
+}
+
+.user-card {
+    width: 100%;
+    border: 2px solid transparent;
+    background: #fff;
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: 0.35s ease;
+}
+
+.user-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.user-card.active.aluno    { border-color: #86c5aa; background: #edf9f2; }
+.user-card.active.professor { border-color: #ffb37d; background: #fff1e6; }
+
+.icon-box {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.aluno .icon-box    { background: #d8efe1; color: var(--auth-primary); }
+.professor .icon-box { background: #ffe2cf; color: var(--auth-secondary); padding: 15px; }
+
+.user-info h3   { font-size: 1.4rem; color: var(--auth-text); }
+.user-info span { font-size: 0.9rem; color: var(--auth-text-leve); }
+
+/* Card de registro */
+.register-card {
+    width: 100%;
+    max-width: 640px;
+    min-width: 0;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(16px);
+    border-radius: 28px;
+    padding: 34px 38px;
+    box-shadow: var(--auth-shadow);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.logo-title { text-align: center; margin-bottom: 35px; }
+.logo-title h1  { font-size: 2.4rem; color: var(--auth-text); margin-bottom: 8px; }
+.logo-title span { color: var(--auth-secondary); }
+.logo-title p   { color: var(--auth-text-leve); }
+
+/* Inputs do registro */
+.input-group { margin-bottom: 22px; }
+
+.input-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: var(--auth-text);
+}
+
+.input-group label span { color: #ff4f4f; }
+
+.input-box.registro {
+    position: relative;
+    display: block;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+.input-box.registro i {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--auth-primary);
+}
+
+.input-box.registro input {
+    width: 100%;
+    height: 58px;
+    border-radius: 16px;
+    border: 2px solid var(--auth-border);
+    background: #fff;
+    padding: 0 55px;
+    font-size: 0.95rem;
+    transition: 0.5s;
+    margin-left: 0;
+}
+
+.input-box.registro input:focus {
+    outline: none;
+    border-color: #8ac5ad;
+    box-shadow: 0 0 0 5px rgba(138, 197, 173, 0.18);
+}
+
+.show-password {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ff7a1a;
+    font-size: 18px;
+    width: auto;
+    padding: 0;
+    box-shadow: none;
+}
+
+/* Regras de senha no registro */
+.password-rules.registro {
+    margin-top: -8px;
+    margin-bottom: 25px;
+    gap: 6px;
+    align-items: stretch;
+}
+
+.password-rules.registro p {
+    font-size: 0.9rem;
+    color: #7b8a86;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+}
+
+.password-rules.registro p.valid { color: #2ea44f; }
+
+/* Botão de registro */
+.register-btn {
+    width: 100%;
+    height: 60px;
+    border: none;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #ff8a32, #ff6f00);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.35s;
+    box-shadow: 0 8px 20px rgba(255, 122, 0, 0.25);
+}
+
+.register-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(255, 122, 26, 0.35);
+}
+
+.login-link        { margin-top: 25px; text-align: center; color: var(--auth-text-leve); }
+.login-link a      { color: var(--auth-secondary); font-weight: 700; text-decoration: none; }
+
+/* Data sem calendário nativo */
+input[type="date"]::-webkit-calendar-picker-indicator { display: none; }
+
+.date-box { position: relative; }
+
+.calendar-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--auth-primary);
+    cursor: pointer;
+    z-index: 2;
+}
+
+/* Erros */
+.input-error {
+    display: block;
+    margin-top: 8px;
+    color: #e53935;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.input-box.error input {
+    border-color: #e53935;
+    box-shadow: 0 0 0 4px rgba(229, 57, 53, 0.12);
+}
+
+/* ── RESPONSIVO REGISTRO ── */
+@media (max-width: 950px) {
+    body.registro { padding: 110px 15px 30px; }
+
+    .container.registro {
+        grid-template-columns: 1fr;
+        justify-content: flex-start;
+        min-height: auto;
+        padding: 20px;
+    }
+
+    .user-selector { width: 100%; max-width: 640px; justify-self: center; }
+    .register-card { justify-self: center; }
+}
+
+@media (max-width: 600px) {
+    body.registro { padding: 96px 10px 24px; }
+    .container.registro { padding: 10px; gap: 18px; }
+    .register-card  { padding: 26px 18px; border-radius: 22px; }
+    .logo-title h1  { font-size: 2rem; }
+    .user-info h3   { font-size: 1.2rem; }
+    .main-header    { padding: 0 20px; }
+}
+
+
+/* ── Ajustes de alinhamento do cadastro ─────────────────────── */
+body.registro {
+    min-height: 100vh;
+    padding: 104px 20px 32px;
+    align-items: flex-start;
+}
+
+body.registro .main-header {
+    background: rgba(255,255,255,.86);
+}
+
+.container.registro {
+    max-width: 1120px;
+    min-height: auto;
+    grid-template-columns: minmax(250px, 320px) minmax(0, 620px);
+    align-items: start;
+    padding: 18px 24px 32px;
+}
+
+.user-selector {
+    position: sticky;
+    top: 112px;
+    align-self: start;
+    margin-top: 172px;
+}
+
+.register-card {
+    justify-self: stretch;
+    background: rgba(255,255,255,.9);
+}
+
+.logo-title {
+    margin-bottom: 26px;
+}
+
+.logo-title h1 {
+    line-height: 1.12;
+}
+
+.input-group {
+    margin-bottom: 18px;
+}
+
+.input-box.registro input {
+    height: 56px;
+    background: rgba(255,255,255,.96);
+}
+
+.show-password,
+.show-password:hover,
+.show-password:active {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    right: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: transparent;
+    box-shadow: none;
+    transform: translateY(-50%);
+}
+
+.password-rules.registro {
+    margin-top: -4px;
+    margin-bottom: 22px;
+}
+
+@media (max-width: 950px) {
+    .user-selector {
+        position: static;
+        margin-top: 0;
+    }
+}
+
+
+@media (max-width: 950px) {
+    .container.registro {
+        grid-template-columns: 1fr;
+        max-width: 680px;
+        padding: 20px;
+    }
+
+    .register-card,
+    .user-selector {
+        justify-self: center;
+        width: 100%;
+        max-width: 640px;
+    }
+}
+
+@media (max-width: 600px) {
+    body.registro {
+        padding: 96px 10px 24px;
+    }
+
+    .container.registro {
+        padding: 10px;
+        gap: 18px;
+    }
+
+    .register-card {
+        padding: 26px 18px;
+        border-radius: 22px;
+    }
+}
+
+
+/* ── Cadastro: seletor à esquerda e formulário centralizado ─── */
+body.registro {
+    padding-top: 104px;
+}
+
+.container.registro {
+    width: min(1320px, calc(100vw - 40px));
+    max-width: 1320px;
+    grid-template-columns: 320px 640px;
+    column-gap: 92px;
+    justify-content: start;
+    align-items: start;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.user-selector {
+    justify-self: start;
+    margin-top: 176px;
+}
+
+.register-card {
+    justify-self: center;
+    max-width: 640px;
+}
+
+@media (min-width: 1500px) {
+    .container.registro {
+        transform: translateX(-70px);
+    }
+}
+
+@media (max-width: 1180px) {
+    .container.registro {
+        width: min(100%, 720px);
+        grid-template-columns: 1fr;
+        column-gap: 0;
+        justify-content: center;
+        transform: none;
+    }
+
+    .user-selector {
+        justify-self: center;
+        margin-top: 0;
+    }
+}
+
+/* ── Cadastro: layout final de desktop ─────────────────────── */
+@media (min-width: 1181px) {
+    body.registro {
+        padding: 104px 20px 42px;
+        justify-content: flex-start;
+    }
+
+    .container.registro {
+        width: min(1480px, calc(100vw - 56px));
+        max-width: 1480px;
+        grid-template-columns: 320px minmax(600px, 640px) 320px;
+        column-gap: 56px;
+        justify-content: center;
+        align-items: start;
+        transform: none;
+        padding: 18px 0 36px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .container.registro .user-selector {
+        grid-column: 1;
+        justify-self: end;
+        width: 320px;
+        margin-top: 176px;
+    }
+
+    .container.registro .register-card {
+        grid-column: 2;
+        justify-self: center;
+        width: 100%;
+        max-width: 640px;
+    }
+}
