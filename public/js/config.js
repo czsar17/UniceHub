@@ -98,6 +98,7 @@ function refreshThemeCss() {
 // ================================================================
 
 async function renderPage(page) {
+    content.classList.toggle('cfg-card-compact', page === 'perfil' || page === 'seguranca');
 
     // ── INFORMAÇÕES PESSOAIS ────────────────────────────────────
     if (page === 'perfil' || !page) {
@@ -325,6 +326,37 @@ async function renderPage(page) {
                 </div>
             </div>
 
+            <!-- Excluir conta -->
+            <div class="cfg-security-item danger-zone">
+                <div class="cfg-security-left">
+                    ${secIcon('fa-trash-can')}
+                    <div>
+                        <strong>Excluir conta</strong>
+                        <span>Remove sua conta, conexões, atividades e projetos vinculados de forma permanente.</span>
+                    </div>
+                </div>
+                <button class="cfg-btn-ghost danger" id="openDeleteForm" type="button">
+                    <i class="fa-solid fa-trash-can"></i> Excluir conta
+                </button>
+            </div>
+
+            <div class="cfg-inline-form cfg-delete-form" id="deleteAccountForm">
+                <div class="cfg-field">
+                    <label class="cfg-label" for="deletePassword">Confirme sua senha</label>
+                    <div class="cfg-cpf-wrap">
+                        <input class="cfg-input" type="password" id="deletePassword" placeholder="••••••••" autocomplete="current-password">
+                        <button class="cfg-eye-btn" data-target="deletePassword" type="button"><i class="fa-regular fa-eye"></i></button>
+                    </div>
+                    <span class="cfg-field-hint">Esta ação não pode ser desfeita.</span>
+                </div>
+                <div class="cfg-pw-actions">
+                    <button class="cfg-btn-ghost" id="cancelDeleteForm" type="button">Cancelar</button>
+                    <button class="cfg-btn-ghost danger" id="deleteAccountBtn" type="button">
+                        <i class="fa-solid fa-trash-can"></i> Excluir definitivamente
+                    </button>
+                </div>
+            </div>
+
         </div>`;
 
         // Abrir/fechar form
@@ -333,6 +365,13 @@ async function renderPage(page) {
         });
         document.getElementById('cancelPwForm').addEventListener('click', () => {
             document.getElementById('pwChangeForm').classList.remove('open');
+        });
+        document.getElementById('openDeleteForm').addEventListener('click', () => {
+            document.getElementById('deleteAccountForm').classList.toggle('open');
+        });
+        document.getElementById('cancelDeleteForm').addEventListener('click', () => {
+            document.getElementById('deleteAccountForm').classList.remove('open');
+            document.getElementById('deletePassword').value = '';
         });
 
         // Regras de senha
@@ -398,6 +437,42 @@ async function renderPage(page) {
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> Salvar nova senha';
+            }
+        });
+
+        // Excluir conta
+        document.getElementById('deleteAccountBtn').addEventListener('click', async () => {
+            const password = document.getElementById('deletePassword').value;
+            if (!password) { flash('Informe sua senha para excluir a conta.', 'error'); return; }
+
+            const btn = document.getElementById('deleteAccountBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Excluindo...';
+
+            try {
+                const res = await fetch(user.deleteAccountUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': user.csrfToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ password }),
+                });
+                const data = await res.json().catch(() => ({}));
+
+                if (res.ok) {
+                    flash(data.message || 'Conta excluída com sucesso.', 'success');
+                    window.location.href = data.redirect || '/login';
+                } else {
+                    const msgs = data.errors ? Object.values(data.errors).flat().join(' — ') : (data.message || 'Erro ao excluir conta.');
+                    flash(msgs, 'error');
+                }
+            } catch(e) {
+                flash('Erro de conexão.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-trash-can"></i> Excluir definitivamente';
             }
         });
 
@@ -525,20 +600,20 @@ async function renderPage(page) {
         const presets = {
             educacional: {
                 primary_color: '#235D4E', secondary_color: '#FF7A1A', accent_color: '#73B98F',
-                background_color: '#EAF7F3', section_color: '#FFFFFF', text_color: '#21433D', font_family: fonts[0], title_font_family: fonts[0],
-                layout_style: 'glass', border_style: 'solid', contrast: 50, soft_shadows: true, smooth_animations: true, gradients: false, high_contrast: false, reduce_motion: false,
+                background_color: '#EAF7F3', section_color: '#FFFFFF', text_color: '#213D37', text_secondary_color: '#657771', input_background_color: '#F6FBF8', font_family: fonts[0], title_font_family: fonts[0],
+                layout_style: 'glass', border_style: 'solid', contrast: 50, soft_shadows: true, smooth_animations: true, high_contrast: false, reduce_motion: false,
                 background_path: 'images/themes/image-78.png', auth_background_path: 'images/themes/image-78.png',
             },
             dark: {
                 primary_color: '#38BDF8', secondary_color: '#22C55E', accent_color: '#F97316',
-                background_color: '#0B1220', section_color: '#18212F', text_color: '#F8FAFC', font_family: fonts[0], title_font_family: fonts[0],
-                layout_style: 'solid', border_style: 'none', contrast: 58, soft_shadows: false, smooth_animations: true, gradients: false, high_contrast: false, reduce_motion: false,
+                background_color: '#090F1C', section_color: '#121B2A', text_color: '#EAF2FF', text_secondary_color: '#94A9C3', input_background_color: '#0E1726', font_family: fonts[0], title_font_family: fonts[0],
+                layout_style: 'solid', border_style: 'none', contrast: 60, soft_shadows: false, smooth_animations: true, high_contrast: false, reduce_motion: false,
                 background_path: 'images/themes/fpreto.png', auth_background_path: 'images/themes/fpreto.png',
             },
             neon: {
-                primary_color: '#5B21B6', secondary_color: '#14B8A6', accent_color: '#EC4899',
-                background_color: '#F5F3FF', section_color: '#FFFFFF', text_color: '#241B3A', font_family: fonts[1], title_font_family: fonts[1],
-                layout_style: 'glass', border_style: 'solid', contrast: 52, soft_shadows: true, smooth_animations: true, gradients: true, high_contrast: false, reduce_motion: false,
+                primary_color: '#6D28D9', secondary_color: '#00D5C8', accent_color: '#F04EB2',
+                background_color: '#120B2A', section_color: '#1E1238', text_color: '#F8F1FF', text_secondary_color: '#CBB7EA', input_background_color: '#2A184A', font_family: fonts[1], title_font_family: fonts[1],
+                layout_style: 'glass', border_style: 'solid', contrast: 54, soft_shadows: true, smooth_animations: true, high_contrast: false, reduce_motion: false,
                 background_path: 'images/themes/froxo.png', auth_background_path: 'images/themes/froxo.png',
             },
         };
@@ -609,6 +684,8 @@ async function renderPage(page) {
                                         ['background_color', 'Cor de fundo', '#F4FBF8'],
                                         ['section_color', 'Cor das seções', '#FFFFFF'],
                                         ['text_color', 'Texto principal', '#1F2937'],
+                                        ['text_secondary_color', 'Texto secundário', '#6D7D78'],
+                                        ['input_background_color', 'Fundo dos inputs', '#F8FAFC'],
                                     ].map(([key, label, fallback]) => `
                                         <label class="cfg-color-field">
                                             <span>${label}</span>
@@ -658,19 +735,10 @@ async function renderPage(page) {
                                     <img src="${escapeHtml(theme.logo_path ? `/${theme.logo_path}` : '/images/LOGOUNICEHUB-removebg-preview.png')}" alt="Logo atual">
                                 </div>
                                 <div class="cfg-upload-grid">
-                                    <label class="cfg-upload-box"><span>Alterar logo</span><input type="file" name="logo" accept=".png,.jpg,.jpeg,.svg,.webp"><small>PNG, JPG, SVG ou WEBP até 5MB</small></label>
-                                    <label class="cfg-upload-box"><span>Fundo das páginas internas</span><input type="file" name="background" accept="image/*"><small>Home, perfil, projetos e configurações</small></label>
-                                    <label class="cfg-upload-box"><span>Fundo login/cadastro</span><input type="file" name="auth_background" accept="image/*"><small>Login, registro e recuperação</small></label>
+                                    <label class="cfg-upload-box"><span>Alterar logo</span><input type="file" name="logo" accept=".png,.jpg,.jpeg,.svg,.webp"><small>PNG/SVG transparente, ideal 512x180, até 5MB</small></label>
+                                    <label class="cfg-upload-box"><span>Fundo das páginas internas</span><input type="file" name="background" accept="image/*"><small>Ideal 1920x1080 ou maior; aplicado em Home, Perfil, Projetos e Configurações</small></label>
+                                    <label class="cfg-upload-box"><span>Fundo login/cadastro</span><input type="file" name="auth_background" accept="image/*"><small>Ideal 1920x1080 ou maior; usado em login, cadastro e recuperação</small></label>
                                 </div>
-                            </article>
-
-                            <article class="cfg-adm-card">
-                                <h4><i class="fa-solid fa-desktop"></i> Pré-visualização</h4>
-                                <div class="cfg-mini-system" id="miniSystemPreview">
-                                    <aside></aside>
-                                    <main><header></header><div></div><div></div><div></div></main>
-                                </div>
-                                <button class="cfg-btn-ghost" type="button" id="fullscreenPreviewBtn"><i class="fa-solid fa-expand"></i> Pré-visualizar em tela cheia</button>
                             </article>
                         </div>
                     </div>
@@ -699,13 +767,13 @@ async function renderPage(page) {
                         <div class="cfg-adm-section-header"><div><h3>Padrões de layout</h3><p>Controle densidade, cartões e bordas do sistema.</p></div><span>Layouts disponíveis</span></div>
                         <div class="cfg-layout-grid">
                             ${[
-                                ['glass', 'Vidro institucional', 'Transparência suave e cards amplos.'],
-                                ['solid', 'Sólido', 'Superfícies opacas e leitura direta.'],
-                                ['compact', 'Compacto', 'Menos arredondamento e mais densidade.'],
+                                ['glass', 'Atual vidro', 'Layout atual com transparência e respiro visual.'],
+                                ['solid', 'Painel sólido', 'Superfícies opacas, leitura forte e menos transparência.'],
+                                ['compact', 'Compacto', 'Mais densidade, menus menores e cartões enxutos.'],
                             ].map(([value, title, desc]) => `
                                 <label class="cfg-layout-card ${radioChecked('layout_style', value, 'glass') ? 'active' : ''}">
                                     <input type="radio" name="layout_style" value="${value}" ${radioChecked('layout_style', value, 'glass')}>
-                                    <span class="layout-thumb ${value}"></span>
+                                    <span class="layout-thumb ${value}"><i></i><i></i><i></i></span>
                                     <strong>${title}</strong>
                                     <small>${desc}</small>
                                 </label>
@@ -731,7 +799,6 @@ async function renderPage(page) {
                             ${[
                                 ['soft_shadows', 'Sombras suaves', 'Aplica profundidade em menus, cards e modais.', true, 'fa-layer-group'],
                                 ['smooth_animations', 'Animações suaves', 'Ativa transições modernas.', true, 'fa-wand-magic-sparkles'],
-                                ['gradients', 'Gradientes', 'Permite fundos e botões com gradiente.', false, 'fa-fill-drip'],
                                 ['high_contrast', 'Alto contraste', 'Aumenta diferenciação para melhorar legibilidade.', false, 'fa-circle-half-stroke'],
                                 ['reduce_motion', 'Reduzir animações', 'Diminui movimentos para conforto visual.', false, 'fa-person-walking'],
                             ].map(([key, title, desc, fallback, icon]) => `
@@ -746,18 +813,25 @@ async function renderPage(page) {
                     </div>
                 </section>
 
-                <aside class="cfg-adm-preview-side">
+                <aside class="cfg-adm-preview-side cfg-adm-actions-side">
                     <h3><i class="fa-regular fa-eye"></i> Pré-visualização</h3>
                     <div class="cfg-home-preview" id="themePreview">
-                        <header><span class="hamb"><i class="fa-solid fa-bars"></i></span><strong>UniceHub</strong><span class="search">Pesquisar pessoas e projetos...</span><i class="fa-regular fa-bell"></i><span class="avatar"></span></header>
+                        <header><span class="hamb"><i class="fa-solid fa-bars"></i></span><strong>UniceHub</strong><span class="search">Pesquisar</span><i class="fa-regular fa-bell"></i><span class="avatar"></span></header>
                         <div class="home-body">
                             <nav><span class="active"><i class="fa-solid fa-house"></i> Home</span><span><i class="fa-regular fa-user"></i> Perfil</span><span><i class="fa-solid fa-users"></i> Conexões</span><span><i class="fa-regular fa-folder"></i> Projetos</span></nav>
                             <main><article><div class="post-top"><span class="avatar"></span><strong>Projeto exemplo</strong></div><h4>Protótipo colaborativo</h4><p>Feed com projeto, tags e ações usando as cores do tema.</p><div class="tags"><span>#laravel</span><span>#design</span></div><button type="button">Ver projeto</button></article></main>
-                            <aside><section><h4>Projetos em Destaque</h4><p>KARVAN PC BUILD</p><p>Dashboard Acadêmico</p></section><section><h4>Tecnologias em alta</h4><span>#php</span><span>#figma</span></section></aside>
+                            <aside><section><h4>Destaques</h4><p>KARVAN PC BUILD</p><p>Dashboard Acadêmico</p></section></aside>
                         </div>
                     </div>
-                    <div class="cfg-tip-box"><h4><i class="fa-regular fa-lightbulb"></i> Dica</h4><p>As mudanças salvas afetam Home, Perfil, Conexões, Projetos, Configurações e telas de autenticação.</p></div>
-                    <div class="cfg-presets-box"><h4>Presets rápidos</h4><button type="button" data-preset="educacional">Educacional</button><button type="button" data-preset="dark">Dark Tech</button><button type="button" data-preset="neon">Neon</button></div>
+                    <button class="cfg-btn-ghost" type="button" id="fullscreenPreviewBtn"><i class="fa-solid fa-expand"></i> Abrir em tela cheia</button>
+                    <div class="cfg-tip-box">
+                        <h4>Onde isso aparece</h4>
+                        <p>As cores salvas afetam Home, Perfil, Conexões, Projetos, Configurações, busca, notificações e telas de autenticação.</p>
+                    </div>
+                    <div class="cfg-tip-box">
+                        <h4>Textos e campos</h4>
+                        <p>Texto principal controla títulos, texto secundário controla descrições, e fundo dos inputs controla busca, CPF, senha, filtros e formulários.</p>
+                    </div>
                     <button class="cfg-btn-primary" type="submit"><i class="fa-solid fa-check"></i> Salvar alterações</button>
                 </aside>
             </form>
@@ -768,7 +842,6 @@ async function renderPage(page) {
         const form = document.getElementById('adminThemeForm');
         const preview = document.getElementById('themePreview');
         const fullPreview = document.getElementById('fullHomePreview');
-        const mini = document.getElementById('miniSystemPreview');
         const contrastValue = document.getElementById('contrastValue');
         const borderPreview = document.getElementById('borderPreview');
 
@@ -805,6 +878,8 @@ async function renderPage(page) {
             const bg = data.get('background_color');
             const section = data.get('section_color');
             const text = data.get('text_color');
+            const muted = data.get('text_secondary_color');
+            const inputBg = data.get('input_background_color');
             const border = data.get('border_style');
             const contrast = data.get('contrast') || 50;
             const backgroundPath = data.get('background_path') || 'images/themes/image-78.png';
@@ -818,6 +893,8 @@ async function renderPage(page) {
                 target.style.setProperty('--preview-bg', bg);
                 target.style.setProperty('--preview-section', section);
                 target.style.setProperty('--preview-text', text);
+                target.style.setProperty('--preview-muted', muted);
+                target.style.setProperty('--preview-input-bg', inputBg);
                 target.style.setProperty('--preview-border', borderValue);
                 target.style.backgroundColor = bg;
                 target.style.backgroundImage = `url('/${backgroundPath}')`;
@@ -826,15 +903,10 @@ async function renderPage(page) {
                 target.style.fontSize = `${data.get('font_size')}px`;
                 target.style.filter = `contrast(${85 + Number(contrast) * 0.3}%)`;
                 target.querySelectorAll('button').forEach(button => {
-                    button.style.background = data.get('gradients') ? `linear-gradient(135deg, ${accent}, ${primary})` : accent;
+                    button.style.background = accent;
                 });
             });
 
-            mini.style.setProperty('--mini-primary', primary);
-            mini.style.setProperty('--mini-bg', bg);
-            mini.style.setProperty('--mini-section', section);
-            mini.style.setProperty('--mini-accent', accent);
-            mini.style.backgroundImage = `url('/${backgroundPath}')`;
             borderPreview.style.border = borderValue;
             contrastValue.textContent = `${contrast}%`;
 
@@ -886,7 +958,7 @@ async function renderPage(page) {
 
             try {
                 const formData = new FormData(form);
-                ['soft_shadows', 'smooth_animations', 'gradients', 'high_contrast', 'reduce_motion'].forEach(key => {
+                ['soft_shadows', 'smooth_animations', 'high_contrast', 'reduce_motion'].forEach(key => {
                     formData.set(key, form.elements[key]?.checked ? '1' : '0');
                 });
                 const res = await postMultipart(admin.themeSaveUrl, formData);
@@ -1009,6 +1081,99 @@ async function renderPage(page) {
                 flash(msgs, 'error');
             } finally {
                 input.disabled = false;
+            }
+        });
+    }
+
+    // ── APROVAÇÃO DE PROFESSORES ADM ─────────────────────────────
+    else if (page === 'professoresAdm') {
+        if (!admin.isAdmin) { content.innerHTML = `<p class="cfg-admin-empty">Acesso restrito.</p>`; return; }
+
+        content.innerHTML = `
+        <div id="cfgFlash" class="cfg-flash"></div>
+        <div class="cfg-section-header">
+            <div>
+                <h2><i class="fa-solid fa-user-check"></i> Aprovação de professores</h2>
+                <p>Analise cadastros feitos como professor antes de liberar o acesso ao sistema.</p>
+            </div>
+        </div>
+        <div class="cfg-admin-professors" id="adminProfessorList">
+            <div class="cfg-admin-empty">Carregando solicitações...</div>
+        </div>`;
+
+        const list = document.getElementById('adminProfessorList');
+
+        const renderProfessores = (professores) => {
+            if (!professores.length) {
+                list.innerHTML = '<div class="cfg-admin-empty">Nenhuma solicitação de professor pendente.</div>';
+                return;
+            }
+
+            list.innerHTML = professores.map(professor => {
+                const cpfDigits = String(professor.cpf || '').replace(/\D/g, '');
+                const cpf = cpfDigits.length === 11 ? formatCpf(cpfDigits) : escapeHtml(professor.cpf || 'Não informado');
+                return `
+                <article class="cfg-professor-request" data-professor-id="${professor.id}">
+                    <div class="cfg-professor-head">
+                        <div>
+                            <strong>${escapeHtml(professor.name)}</strong>
+                            <span>${escapeHtml(professor.email)}</span>
+                        </div>
+                        <small>Solicitado em ${escapeHtml(professor.requested_at)}</small>
+                    </div>
+                    <div class="cfg-professor-data">
+                        <span><i class="fa-regular fa-address-card"></i><b>CPF</b>${cpf}</span>
+                        <span><i class="fa-regular fa-calendar"></i><b>Nascimento</b>${escapeHtml(professor.data_nascimento)}</span>
+                        <span><i class="fa-solid fa-graduation-cap"></i><b>Curso</b>${escapeHtml(professor.curso)}</span>
+                        <span><i class="fa-solid fa-phone"></i><b>Telefone</b>${escapeHtml(professor.telefone)}</span>
+                    </div>
+                    <div class="cfg-professor-actions">
+                        <button class="cfg-btn-ghost danger" type="button" data-action="reject" data-user-id="${professor.id}"><i class="fa-solid fa-xmark"></i> Negar</button>
+                        <button class="cfg-btn-primary" type="button" data-action="approve" data-user-id="${professor.id}"><i class="fa-solid fa-check"></i> Aprovar</button>
+                    </div>
+                </article>`;
+            }).join('');
+        };
+
+        const loadProfessores = async () => {
+            try {
+                const res = await fetch(admin.professorRequestsUrl, { headers: { 'Accept': 'application/json' } });
+                const data = await res.json();
+                if (!res.ok) throw data;
+                renderProfessores(data.professores || []);
+            } catch (error) {
+                list.innerHTML = '<div class="cfg-admin-empty">Erro ao carregar solicitações.</div>';
+            }
+        };
+
+        await loadProfessores();
+
+        list.addEventListener('click', async (event) => {
+            const btn = event.target.closest('button[data-action][data-user-id]');
+            if (!btn) return;
+
+            const original = btn.innerHTML;
+            const row = btn.closest('.cfg-professor-request');
+            row.querySelectorAll('button').forEach(button => button.disabled = true);
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+
+            try {
+                const res = await postForm(admin.professorReviewUrl, {
+                    user_id: btn.dataset.userId,
+                    action: btn.dataset.action,
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw data;
+                flash(data.message || 'Solicitação analisada.', 'success');
+                row.remove();
+                if (!list.querySelector('.cfg-professor-request')) {
+                    list.innerHTML = '<div class="cfg-admin-empty">Nenhuma solicitação de professor pendente.</div>';
+                }
+            } catch (error) {
+                const msgs = error.errors ? Object.values(error.errors).flat().join(' — ') : 'Erro ao analisar solicitação.';
+                flash(msgs, 'error');
+                btn.innerHTML = original;
+                row.querySelectorAll('button').forEach(button => button.disabled = false);
             }
         });
     }

@@ -164,6 +164,10 @@
                             @endforeach
                         </select>
 
+                        @if($user->isVerifiedProfessor())
+                            <div class="teacher-verified-badge profile"><i class="fa-solid fa-circle-check"></i> Professor verificado</div>
+                        @endif
+
                         <p>
                             <i class="fa-regular fa-calendar"></i>
                             Membro desde: {{ $user->created_at->format('d/m/Y') }}
@@ -198,13 +202,10 @@
                                     Solicitação enviada
                                 </button>
                             @else
-                                <form action="{{ route('seguir.enviar', $user->id) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="edit-project-btn">
-                                        <i class="fa-solid fa-user-plus"></i>
-                                        Conectar
-                                    </button>
-                                </form>
+                                <button type="submit" class="edit-project-btn" form="followUserForm">
+                                    <i class="fa-solid fa-user-plus"></i>
+                                    Conectar
+                                </button>
                             @endif
                         @endif
                     </div>
@@ -388,6 +389,11 @@ console.log('UniceHub');
                     </div>
                 </section>
             </form>
+            @if(!$isOwnProfile && !$perfilFollowStatus)
+                <form id="followUserForm" action="{{ route('seguir.enviar', $user->id) }}" method="POST" hidden>
+                    @csrf
+                </form>
+            @endif
         </main>
     </div>
 

@@ -1075,3 +1075,135 @@
     font-size: 15px;
     color: #1f2f2f;
 }
+
+/* ── Refinos de projetos e professor verificado ─────────────── */
+.teacher-verified-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: fit-content;
+    max-width: 100%;
+    min-height: 24px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--theme-primary, #235D4E) 10%, var(--theme-section, #fff));
+    color: var(--theme-primary, #235D4E) !important;
+    border: 1px solid color-mix(in srgb, var(--theme-primary, #235D4E) 24%, transparent);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+    box-shadow: none;
+}
+
+.teacher-verified-badge i {
+    color: var(--theme-accent, #73B98F) !important;
+    font-size: 12px;
+    line-height: 1;
+}
+
+.teacher-verified-badge.compact,
+.teacher-verified-badge.mini {
+    width: 20px;
+    height: 20px;
+    min-height: 20px;
+    padding: 0;
+    flex: 0 0 20px;
+    overflow: hidden;
+    font-size: 0;
+    white-space: nowrap;
+    background: var(--theme-section, #fff);
+}
+
+.teacher-verified-badge.compact i,
+.teacher-verified-badge.mini i {
+    font-size: 12px;
+}
+
+.teacher-verified-badge.profile {
+    min-height: 28px;
+    padding: 6px 10px;
+    margin: 6px 0 8px;
+    background: color-mix(in srgb, var(--theme-accent, #73B98F) 14%, var(--theme-section, #fff));
+}
+
+.projects-header {
+    border: 1px solid color-mix(in srgb, var(--theme-primary, #2D6A63) 16%, transparent);
+}
+
+.project-owner-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    margin: -2px 0 9px;
+    color: var(--theme-text-muted, #6d7d78);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.project-owner-line img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--theme-input-bg, #f8fafc);
+}
+
+.project-owner-line > span:not(.teacher-verified-badge) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.project-footer span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.empty-state.project-empty-state {
+    border-radius: 22px;
+    padding: 34px 24px;
+    min-height: 260px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 12px;
+    text-align: center;
+    background: color-mix(in srgb, var(--theme-section, #fff) 88%, transparent);
+    border: 1px solid color-mix(in srgb, var(--theme-primary, #2D6A63) 16%, transparent);
+    box-shadow: var(--shadow-card, 0 10px 30px rgba(0,0,0,.08));
+}
+
+.project-empty-icon {
+    width: 74px;
+    height: 74px;
+    border-radius: 22px;
+    display: grid;
+    place-items: center;
+    background: color-mix(in srgb, var(--theme-accent, #73B98F) 18%, var(--theme-input-bg, #F8FAFC));
+    color: var(--theme-primary, #235D4E);
+    font-size: 31px;
+}
+
+.project-empty-state h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.project-empty-state p {
+    max-width: 420px;
+    line-height: 1.45;
+}
+
+.project-empty-state .new-project-btn {
+    margin-top: 4px;
+    display: inline-flex;
+}
+
+.filter-card,
+.summary-card,
+.project-card {
+    border: 1px solid color-mix(in srgb, var(--theme-primary, #2D6A63) 14%, transparent);
+}

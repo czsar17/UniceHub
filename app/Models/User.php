@@ -19,6 +19,10 @@ class User extends Authenticatable
         'data_nascimento',
         'tipo',
         'is_admin',
+        'approval_status',
+        'approval_requested_at',
+        'approval_reviewed_at',
+        'approval_reviewed_by',
         'foto',
         'curso',
         'telefone',
@@ -58,11 +62,18 @@ public function seguindo()
     protected $casts = [
         'email_verified_at' => 'datetime',
         'tecnologias' => 'array',
-        'is_admin' => 'boolean'
+        'is_admin' => 'boolean',
+        'approval_requested_at' => 'datetime',
+        'approval_reviewed_at' => 'datetime'
     ];
 
     public function atividades()
     {
         return $this->hasMany(Atividade::class);
+    }
+
+    public function isVerifiedProfessor(): bool
+    {
+        return $this->tipo === 'professor' && $this->approval_status === 'approved';
     }
 }

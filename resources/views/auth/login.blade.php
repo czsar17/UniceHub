@@ -35,6 +35,19 @@
 
             <p>Faça login para continuar.</p>
 
+            @if(session('status'))
+                <div class="auth-feedback success">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>{{ session('status') }}</span>
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="auth-feedback error">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>{{ $errors->first() }}</span>
+                </div>
+            @endif
 
             <!-- EMAIL -->
 
@@ -51,6 +64,7 @@
                     name="email"
                     id="email"
                     placeholder="Digite seu email"
+                    value="{{ old('email') }}"
                     required
                 >
 

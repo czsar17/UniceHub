@@ -85,7 +85,11 @@
 
             <div class="search-user-info">
                 <h3>{{ $usuario->name }}</h3>
-                <p>{{ $usuario->curso ?: 'Curso não informado' }}</p>
+                @if($usuario->isVerifiedProfessor())
+                    <p class="teacher-verified-badge compact"><i class="fa-solid fa-circle-check"></i> Professor verificado</p>
+                @else
+                    <p>{{ $usuario->curso ?: 'Curso não informado' }}</p>
+                @endif
             </div>
 
             <i class="fa-solid fa-chevron-right"></i>
@@ -110,6 +114,9 @@
                                     <p>{{ Str::limit(strip_tags($projeto->descricao), 120) }}</p>
                                     <div class="profile-project-meta">
                                         <span>{{ $projeto->criador->name ?? 'Criador não informado' }}</span>
+                                        @if($projeto->criador?->isVerifiedProfessor())
+                                            <span class="teacher-verified-badge mini"><i class="fa-solid fa-circle-check"></i></span>
+                                        @endif
                                         <span>{{ $projeto->membros->count() }} membros</span>
                                     </div>
                                 </div>

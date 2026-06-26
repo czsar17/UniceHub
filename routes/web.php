@@ -27,9 +27,10 @@ Route::get('/registro', function () {
 Route::post('/registro', [AuthController::class, 'register']);
 
 // ESQUECI SENHA
-Route::get('/esqueci-senha', function () {
-    return view('auth.esqueci-senha');
-})->name('esqueci-senha');
+Route::get('/esqueci-senha', [AuthController::class, 'forgotPasswordForm'])->name('esqueci-senha');
+Route::post('/esqueci-senha/enviar', [AuthController::class, 'sendPasswordResetCode'])->name('senha.enviar-codigo');
+Route::post('/esqueci-senha/validar', [AuthController::class, 'verifyPasswordResetCode'])->name('senha.validar-codigo');
+Route::post('/esqueci-senha/redefinir', [AuthController::class, 'resetPasswordWithCode'])->name('senha.redefinir');
 
 
 // HOME PROTEGIDA
@@ -107,10 +108,11 @@ Route::delete(
 )->middleware('auth')
 ->name('comentarios.excluir');
 
-    Route::post(
+Route::post(
     '/projetos/{projeto}/curtir',
-    [ProjetoController::class,'curtir']
-)->name('projetos.curtir');
+    [ProjetoController::class, 'curtir']
+)->middleware('auth')
+->name('projetos.curtir');
 
 // cadastro de projetos
 Route::get('/projetoscad', [ProjetoController::class, 'create'])
@@ -183,6 +185,10 @@ Route::post('/config/senha', [AuthController::class, 'trocarSenha'])
     ->middleware('auth')
     ->name('config.senha');
 
+Route::delete('/config/conta', [AuthController::class, 'excluirConta'])
+    ->middleware('auth')
+    ->name('config.conta.excluir');
+
 Route::get('/config/admin/usuarios', [AuthController::class, 'adminUsuarios'])
     ->middleware('auth')
     ->name('admin.usuarios');
@@ -190,6 +196,14 @@ Route::get('/config/admin/usuarios', [AuthController::class, 'adminUsuarios'])
 Route::post('/config/admin/usuarios', [AuthController::class, 'adminAtualizarUsuario'])
     ->middleware('auth')
     ->name('admin.usuarios.atualizar');
+
+Route::get('/config/admin/professores', [AuthController::class, 'adminProfessoresPendentes'])
+    ->middleware('auth')
+    ->name('admin.professores');
+
+Route::post('/config/admin/professores', [AuthController::class, 'adminRevisarProfessor'])
+    ->middleware('auth')
+    ->name('admin.professores.revisar');
 
 Route::post('/config/admin/tema', [AuthController::class, 'adminAtualizarTema'])
     ->middleware('auth')

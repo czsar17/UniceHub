@@ -116,6 +116,9 @@
             <button class="menu-item" data-page="usuariosAdm" data-label="Usuários ADM">
               <i class="fa-solid fa-users-gear"></i> Usuários
             </button>
+            <button class="menu-item" data-page="professoresAdm" data-label="Aprovação de professores">
+              <i class="fa-solid fa-user-check"></i> Professores
+            </button>
           </div>
           @endif
 
@@ -156,6 +159,7 @@
       csrfToken:      @json(csrf_token()),
       updateUrl:      @json(route('perfil.atualizar')),
       passwordUrl:    @json(route('config.senha')),
+      deleteAccountUrl: @json(route('config.conta.excluir')),
     };
 
     window.cfgAdmin = {
@@ -163,6 +167,8 @@
       theme:          @json($systemTheme),
       usersUrl:       @json(route('admin.usuarios')),
       userUpdateUrl:  @json(route('admin.usuarios.atualizar')),
+      professorRequestsUrl: @json(route('admin.professores')),
+      professorReviewUrl:   @json(route('admin.professores.revisar')),
       themeSaveUrl:   @json(route('admin.tema.salvar')),
       themeResetUrl:  @json(route('admin.tema.restaurar')),
       themeCssUrl:    @json(route('theme.css')),

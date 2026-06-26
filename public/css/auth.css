@@ -662,3 +662,98 @@ body.registro {
         max-width: 640px;
     }
 }
+
+
+/* ── Feedback de login e conta em análise ───────────────────── */
+.auth-feedback {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin: 10px 0 18px;
+    font-size: .92rem;
+    line-height: 1.35;
+    text-align: left;
+}
+
+.auth-feedback.success {
+    background: color-mix(in srgb, var(--theme-accent, #73B98F) 14%, #fff);
+    color: var(--theme-text, #21433D);
+    border: 1px solid color-mix(in srgb, var(--theme-accent, #73B98F) 35%, transparent);
+}
+
+.auth-feedback.error {
+    background: #fff1f2;
+    color: #9f1239;
+    border: 1px solid #fecdd3;
+}
+
+.auth-feedback i {
+    margin-top: 2px;
+}
+
+.pending-card {
+    gap: 14px;
+}
+
+.pending-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
+    display: grid;
+    place-items: center;
+    background: color-mix(in srgb, var(--theme-accent, #73B98F) 16%, var(--theme-input-bg, #f8fafc));
+    color: var(--theme-accent, #73B98F);
+    font-size: 1.45rem;
+    margin: 4px auto 0;
+}
+
+.pending-email {
+    display: inline-flex;
+    justify-content: center;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--theme-input-bg, #f8fafc);
+    color: var(--theme-text, #21433D);
+    border: 1px solid color-mix(in srgb, var(--theme-primary, #235D4E) 18%, transparent);
+    overflow-wrap: anywhere;
+}
+
+.pending-login-link {
+    width: 100%;
+    min-height: 46px;
+    border-radius: 14px;
+    background: var(--theme-accent, #73B98F);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+
+.recovery-card form {
+    width: 100%;
+}
+
+.recovery-code-box input {
+    letter-spacing: .28em;
+    font-weight: 800;
+    text-align: center;
+}
+
+.recovery-resend-form {
+    margin-top: 10px;
+}
+
+.link-button {
+    background: transparent !important;
+    color: var(--auth-primary, #235D4E) !important;
+    border: 1px solid color-mix(in srgb, var(--auth-primary, #235D4E) 24%, transparent) !important;
+    box-shadow: none !important;
+}
