@@ -9,11 +9,13 @@
 
     <title>Conexões - UniceHub</title>
 
-    <link rel="stylesheet" href="{{ asset('css/conexoes.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/base.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+    <link rel="stylesheet" href="{{ route('theme.css') }}">
 </head>
 
 <body>
@@ -24,7 +26,7 @@
 
       <i class="fa-solid fa-bars menu-icon"></i>
 
-      <img src="{{ asset('images/LOGOUNICEHUB-removebg-preview.png') }}" class="header-logo">
+      <img src="{{ asset($systemTheme['logo_path'] ?? 'images/LOGOUNICEHUB-removebg-preview.png') }}" class="header-logo">
 
     </div>
 
@@ -668,5 +670,6 @@ document.addEventListener("click", (event) => {
 
 updateCounter("todos");
 </script>
+  <script src="{{ asset('js/notifications.js') }}"></script>
 </body>
 </html>

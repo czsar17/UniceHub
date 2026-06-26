@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <link rel="stylesheet" href="{{ asset('css/base.css') }}">
     <link rel="stylesheet" href="{{ asset('css/perfil.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ route('theme.css') }}">
 </head>
 
 @php
@@ -42,7 +44,7 @@
     <header class="header">
         <div class="header-left">
             <i class="fa-solid fa-bars menu-icon"></i>
-            <img src="{{ asset('images/LOGOUNICEHUB-removebg-preview.png') }}" class="header-logo">
+            <img src="{{ asset($systemTheme['logo_path'] ?? 'images/LOGOUNICEHUB-removebg-preview.png') }}" class="header-logo">
         </div>
 
         <form class="search-box" action="{{ route('buscar') }}" method="GET">
@@ -103,11 +105,11 @@
 
             <div class="sidebar-bottom">
                 <div class="sidebar-profile">
-                    <img src="{{ asset($user->foto) }}" class="profile-pic">
+                    <img src="{{ asset($authUser->foto) }}" class="profile-pic">
                     <div>
-                        <h4>{{ $user->name }}</h4>
-                        @if($user->curso)
-                            <span>{{ $user->curso }}</span>
+                        <h4>{{ $authUser->name }}</h4>
+                        @if($authUser->curso)
+                            <span>{{ $authUser->curso }}</span>
                         @endif
                     </div>
                 </div>
@@ -390,6 +392,7 @@ console.log('UniceHub');
     </div>
 
     <script src="{{ asset('js/perfil.js') }}"></script>
+  <script src="{{ asset('js/notifications.js') }}"></script>
 </body>
 
 </html>

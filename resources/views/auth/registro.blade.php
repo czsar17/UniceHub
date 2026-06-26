@@ -7,23 +7,24 @@
     <title>Cadastro | UniceHub</title>
 
     <!-- CSS -->
-    <link rel="stylesheet" href="{{ asset('css/styleRegistro.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
 
     <!-- Icons -->
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     />
+    <link rel="stylesheet" href="{{ route('theme.css') }}">
 </head>
-<body>
+<body class="registro auth-page">
 
     <header class="main-header">
         <div class="logo-area">
-            <img src="{{ asset('images/LOGOUNICEHUB-removebg-preview.png') }}">
+            <img src="{{ asset($systemTheme['logo_path'] ?? 'images/LOGOUNICEHUB-removebg-preview.png') }}">
         </div>
     </header>
 
-    <main class="container">
+    <main class="container registro">
 
         <!-- SELEÇÃO -->
         <aside class="user-selector">
@@ -84,7 +85,7 @@
                     <span>*</span>
                 </label>
 
-                <div class="input-box">
+                <div class="input-box registro">
 
                     <i class="fa-regular fa-user"></i>
 
@@ -112,7 +113,7 @@
                 <span>*</span>
             </label>
 
-            <div class="input-box @error('cpf') error @enderror">
+            <div class="input-box registro @error('cpf') error @enderror">
 
                 <i class="fa-regular fa-id-card"></i>
 
@@ -150,7 +151,7 @@
                 <span>*</span>
             </label>
 
-            <div class="input-box @error('email') error @enderror">
+            <div class="input-box registro @error('email') error @enderror">
 
                 <i class="fa-regular fa-envelope"></i>
 
@@ -179,7 +180,7 @@
                     <span>*</span>
                 </label>
 
-                <div class="input-box date-box">
+                <div class="input-box registro date-box">
 
                     <i class="fa-regular fa-calendar calendar-icon"></i>
 
@@ -207,7 +208,7 @@
                     <span>*</span>
                 </label>
 
-                <div class="input-box">
+                <div class="input-box registro">
 
                     <i class="fa-solid fa-lock"></i>
 
@@ -236,7 +237,7 @@
             </div>
 
             <!-- REGRAS -->
-            <div class="password-rules">
+            <div class="password-rules registro">
 
                 <p id="ruleLength">
                     <i class="fa-solid fa-circle"></i>
@@ -263,7 +264,7 @@
                     <span>*</span>
                 </label>
 
-                <div class="input-box">
+                <div class="input-box registro">
 
                     <i class="fa-solid fa-lock"></i>
 

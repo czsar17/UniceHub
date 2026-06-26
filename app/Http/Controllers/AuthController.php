@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 use App\Models\Follower;
@@ -63,6 +64,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'data_nascimento' => $request->data_nascimento,
             'tipo' => $request->tipo,
+            'is_admin' => !User::where('is_admin', true)->exists(),
             'password' => Hash::make($request->password),
             'foto' => 'images/default-user.png',
         ]);
@@ -141,6 +143,350 @@ public function perfil()
     return view('auth.perfil', compact('atividades', 'perfilUser', 'projetosPerfil', 'perfilFollowStatus'));
 }
 
+public function config()
+  {
+      return view('auth.config');
+  }
+
+
+private function defaultTheme(): array
+{
+    return [
+        'primary_color' => '#2D6A63',
+        'secondary_color' => '#FF7A1A',
+        'accent_color' => '#73B98F',
+        'background_color' => '#F4FBF8',
+        'section_color' => '#FFFFFF',
+        'text_color' => '#21433D',
+        'font_family' => 'Inter, Segoe UI, Arial, sans-serif',
+        'font_size' => '16',
+        'title_font_family' => 'Inter, Segoe UI, Arial, sans-serif',
+        'layout_style' => 'glass',
+        'border_style' => 'solid',
+        'contrast' => '50',
+        'soft_shadows' => true,
+        'smooth_animations' => true,
+        'gradients' => false,
+        'high_contrast' => false,
+        'reduce_motion' => false,
+        'logo_path' => 'images/LOGOUNICEHUB-removebg-preview.png',
+        'background_path' => 'images/themes/image-78.png',
+        'auth_background_path' => 'images/themes/image-78.png',
+    ];
+}
+
+private function systemTheme(): array
+{
+    if (!\Illuminate\Support\Facades\Schema::hasTable('system_settings')) {
+        return $this->defaultTheme();
+    }
+
+    $value = DB::table('system_settings')->where('key', 'theme')->value('value');
+    $theme = is_string($value) ? json_decode($value, true) : [];
+
+    return array_merge($this->defaultTheme(), is_array($theme) ? $theme : []);
+}
+
+private function ensureAdmin(): void
+{
+    if (!Auth::user()?->is_admin) {
+        abort(403);
+    }
+}
+
+public function themeCss()
+{
+    $theme = $this->systemTheme();
+    $fontSize = max(13, min(20, (int) ($theme['font_size'] ?? 16)));
+    $contrast = max(0, min(100, (int) ($theme['contrast'] ?? 50)));
+    $contrastPercent = 85 + ($contrast * 0.3);
+    $radius = ($theme['layout_style'] ?? 'glass') === 'compact' ? '14px' : '28px';
+    $cardOpacity = ($theme['layout_style'] ?? 'glass') === 'solid' ? '1' : '0.80';
+    $shadow = !empty($theme['soft_shadows']) ? '0 10px 30px rgba(0, 0, 0, 0.08)' : 'none';
+    $motion = (!empty($theme['smooth_animations']) && empty($theme['reduce_motion'])) ? '0.3s' : '0s';
+    $borderStyle = $theme['border_style'] ?? 'solid';
+    $border = $borderStyle === 'none' ? 'none' : "1px {$borderStyle} rgba(45, 106, 99, 0.22)";
+    $logo = asset($theme['logo_path']);
+    $background = asset($theme['background_path']);
+    $authBackground = asset($theme['auth_background_path']);
+
+    $css = <<<CSS
+:root {
+    --cor-verde: {$theme['accent_color']};
+    --cor-verde-escuro: {$theme['primary_color']};
+    --cor-verde-btn: {$theme['accent_color']};
+    --cor-verde-hover: {$theme['primary_color']};
+    --cor-verde-claro: color-mix(in srgb, {$theme['accent_color']} 28%, white);
+    --cor-texto: {$theme['text_color']};
+    --auth-primary: {$theme['primary_color']};
+    --auth-secondary: {$theme['secondary_color']};
+    --auth-text: {$theme['text_color']};
+    --font-principal: {$theme['font_family']};
+    --font-titulos: {$theme['title_font_family']};
+    --radius-card: {$radius};
+    --shadow-card: {$shadow};
+    --theme-card-opacity: {$cardOpacity};
+    --theme-transition: {$motion};
+    --theme-border: {$border};
+    --theme-primary: {$theme['primary_color']};
+    --theme-secondary: {$theme['secondary_color']};
+    --theme-accent: {$theme['accent_color']};
+    --theme-bg: {$theme['background_color']};
+    --theme-section: {$theme['section_color']};
+    --theme-text: {$theme['text_color']};
+    font-size: {$fontSize}px;
+}
+body {
+    background-color: {$theme['background_color']};
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    color: {$theme['text_color']};
+    font-family: var(--font-principal);
+    filter: contrast({$contrastPercent}%);
+}
+body:not(.registro):not(.auth-page) { background-image: url('{$background}'); }
+body.registro, body.auth-page { background-image: url('{$authBackground}'); }
+h1, h2, h3, .cfg-page-title h1, .post-content h2, .widget-card h3, .sidebar a, .menu-item { font-family: var(--font-titulos); }
+a, .menu-item i, .cfg-section-header h2 i, .sec-icon, .widget-card h3 i { color: var(--theme-primary); }
+.header-logo, .logo-area img { content: url('{$logo}'); }
+.header, .main-header, .sidebar, .widget-card, .sidebar-card, .post-card, .cfg-card, .cfg-sidebar-menu, .profile-card, .profile-header, .profile-tabs, .profile-project-card, .profile-user-card, .comentarios-card, .connections-main, .connection-card, .request-card, .suggestion, .filter-card, .summary-card, .convite-card, .project-card, .project-mini-card, .project-sidebar, .create-project-card, .member-card, .project-members, .preview-card, .summary-card.projeto, .comment-box, .notification-panel, .notification-card, .cfg-adm-main, .cfg-adm-preview-side, .cfg-adm-card, .cfg-theme-card, .cfg-layout-card, .cfg-effect-item, .cfg-action-card, .cfg-bg-card, .cfg-notif-group, .cfg-profile-type, .cfg-info-box, .cfg-privacy-section, .search-result-card, .search-user-card, .preview-panel, .config-card, .security-section, .notification-section, .profile-section, .project-menu-dropdown {
+    border: var(--theme-border);
+    box-shadow: var(--shadow-card);
+    transition-duration: var(--theme-transition);
+}
+.header, .main-header, .sidebar, .widget-card, .sidebar-card, .post-card, .cfg-card, .cfg-sidebar-menu, .profile-card, .profile-header, .profile-tabs, .profile-project-card, .profile-user-card, .comentarios-card, .connections-main, .connection-card, .request-card, .suggestion, .filter-card, .summary-card, .convite-card, .project-card, .project-mini-card, .project-sidebar, .create-project-card, .member-card, .project-members, .preview-card, .summary-card.projeto, .comment-box, .notification-panel, .notification-card, .cfg-adm-main, .cfg-adm-preview-side, .cfg-adm-card, .cfg-theme-card, .cfg-layout-card, .cfg-effect-item, .cfg-action-card, .cfg-bg-card, .cfg-notif-group, .cfg-profile-type, .cfg-info-box, .cfg-privacy-section, .search-result-card, .search-user-card, .preview-panel, .connections-tabs, .connections-list, .connections-top, .config-card, .security-section, .notification-section, .profile-section, .project-menu-dropdown {
+    background: var(--theme-section) !important;
+    background-color: var(--theme-section) !important;
+}
+body.auth-page .login-card, body.registro .register-card, body.registro .user-selector {
+    background-color: rgba(255, 255, 255, 0.88);
+}
+body.registro .register-card, body.registro .user-selector {
+    border: 1px solid rgba(255,255,255,.45);
+}
+.menu-item.active, .sidebar li.active, .sidebar .active, .sidebar a.active, .nav-link.active, .cfg-profile-type.active-type, .connections-tabs .active {
+    background-color: color-mix(in srgb, var(--theme-accent) 18%, var(--theme-section));
+}
+.sidebar li, .sidebar a, .sidebar-profile h4, .sidebar-profile span, .connections-header h1, .connections-header p, .connections-top h2, .connections-top span, .card-header h3, .projects-header h1, .projects-header p, .page-header h1, .page-header p, .profile-info h1, .profile-info h2, .profile-stats, .profile-card h2, .profile-card h3, .profile-card h4, .profile-card p, .profile-card label, .profile-card span, .profile-tabs button, .section-title-row span, .filter-card h3, .summary-card h3, .summary-item, .project-card h3, .project-card p, .project-description, .project-footer, .project-top h3, .create-project-card h1, .create-project-card label, .preview-card h3, .preview-card h4, .preview-card p, .member-card, .cfg-card, .cfg-card h2, .cfg-card h3, .cfg-card h4, .cfg-card p, .cfg-card span, .cfg-card label, .cfg-theme-card strong, .cfg-theme-card small, .cfg-layout-card strong, .cfg-layout-card small, .notification-card h4, .notification-card span, .search-result-card h4, .search-result-card p, .search-user-card h4, .search-user-card span {
+    color: var(--theme-text) !important;
+}
+.widget-card, .sidebar-card, .post-card, .project-card, .profile-card, .profile-header, .profile-tabs, .filter-card, .summary-card, .cfg-card, .connections-main {
+    backdrop-filter: blur(12px);
+}
+button, .cfg-btn-primary, .ver-projeto-btn, .conectar-btn, .connect-btn, .btn-primary, .submit-btn, .register-btn { border-color: transparent; }
+.cfg-btn-primary, .ver-projeto-btn, .conectar-btn, .connect-btn, .suggestion button, .project-mini-card button, .accept-btn, .new-project-btn, .btn-primary, .submit-btn { background-color: var(--theme-accent); color: #fff; }
+input, textarea, select, .cfg-input, .cfg-select, .profile-field, .nome-input, .curso-input, .search-box input, .connections-search input, .members-search, .filter-card input, .filter-card select, .create-project-card input, .create-project-card textarea, .create-project-card select {
+    border-color: color-mix(in srgb, var(--theme-primary) 24%, transparent) !important;
+    color: var(--theme-text) !important;
+}
+.tags span, .connections-count, .search-result-tags span, .project-tag, .tech-tag {
+    background-color: color-mix(in srgb, var(--theme-accent) 18%, var(--theme-section));
+    color: var(--theme-primary);
+}
+.empty-connections i, .search-empty-state i { color: color-mix(in srgb, var(--theme-primary) 32%, var(--theme-section)); }
+CSS;
+
+    if (!empty($theme['high_contrast'])) {
+        $css .= "
+body { filter: contrast(120%); }
+";
+    }
+
+    if (!empty($theme['gradients'])) {
+        $css .= "
+button, .cfg-btn-primary, .ver-projeto-btn { background-image: linear-gradient(135deg, {$theme['accent_color']}, {$theme['primary_color']}); }
+";
+    }
+
+    if (!empty($theme['reduce_motion'])) {
+        $css .= "
+*, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+";
+    }
+
+    return response($css, 200)->header('Content-Type', 'text/css');
+}
+
+public function adminUsuarios()
+{
+    $this->ensureAdmin();
+
+    return response()->json([
+        'usuarios' => User::orderByDesc('is_admin')
+            ->orderBy('name')
+            ->get(['id', 'name', 'email', 'tipo', 'curso', 'foto', 'is_admin'])
+            ->map(fn (User $usuario) => [
+                'id' => $usuario->id,
+                'name' => $usuario->name,
+                'email' => $usuario->email,
+                'tipo' => $usuario->tipo,
+                'curso' => $usuario->curso,
+                'foto' => asset($usuario->foto ?: 'images/default-user.png'),
+                'is_admin' => (bool) $usuario->is_admin,
+                'is_me' => $usuario->id === Auth::id(),
+            ])->values(),
+    ]);
+}
+
+public function adminAtualizarUsuario(Request $request)
+{
+    $this->ensureAdmin();
+
+    $data = $request->validate([
+        'user_id' => 'required|exists:users,id',
+        'is_admin' => 'required|boolean',
+    ]);
+
+    $usuario = User::findOrFail($data['user_id']);
+    $isAdmin = (bool) $data['is_admin'];
+
+    if (!$isAdmin && $usuario->is_admin && User::where('is_admin', true)->count() <= 1) {
+        return response()->json([
+            'errors' => ['is_admin' => ['O sistema precisa manter pelo menos um administrador.']],
+        ], 422);
+    }
+
+    $usuario->is_admin = $isAdmin;
+    $usuario->save();
+
+    return response()->json(['message' => 'Permissão atualizada com sucesso.']);
+}
+
+public function adminAtualizarTema(Request $request)
+{
+    $this->ensureAdmin();
+
+    $data = $request->validate([
+        'primary_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+        'secondary_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+        'accent_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+        'background_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+        'section_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+        'text_color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+        'font_family' => [
+            'required',
+            Rule::in([
+                'Inter, Segoe UI, Arial, sans-serif',
+                'Poppins, Segoe UI, Arial, sans-serif',
+                'Arial, sans-serif',
+                'Georgia, serif',
+            ]),
+        ],
+        'font_size' => 'required|integer|min:13|max:20',
+        'title_font_family' => [
+            'required',
+            Rule::in([
+                'Inter, Segoe UI, Arial, sans-serif',
+                'Poppins, Segoe UI, Arial, sans-serif',
+                'Arial, sans-serif',
+                'Georgia, serif',
+            ]),
+        ],
+        'layout_style' => ['required', Rule::in(['glass', 'solid', 'compact'])],
+        'border_style' => ['required', Rule::in(['solid', 'dashed', 'dotted', 'none'])],
+        'contrast' => 'required|integer|min:0|max:100',
+        'soft_shadows' => 'nullable|boolean',
+        'smooth_animations' => 'nullable|boolean',
+        'gradients' => 'nullable|boolean',
+        'high_contrast' => 'nullable|boolean',
+        'reduce_motion' => 'nullable|boolean',
+        'background_path' => 'nullable|string|max:255',
+        'auth_background_path' => 'nullable|string|max:255',
+        'logo' => 'nullable|file|mimes:png,jpg,jpeg,svg,webp|max:5120',
+        'background' => 'nullable|image|max:5120',
+        'auth_background' => 'nullable|image|max:5120',
+    ]);
+
+    $theme = $this->systemTheme();
+    $theme = array_merge($theme, collect($data)->except(['logo', 'background', 'auth_background', 'background_path', 'auth_background_path'])->all());
+
+    foreach (['background_path', 'auth_background_path'] as $pathKey) {
+        $submittedPath = ltrim((string) $request->input($pathKey, ''), '/');
+        if ($submittedPath !== '' && (str_starts_with($submittedPath, 'images/themes/') || str_starts_with($submittedPath, 'images/admin/') || in_array($submittedPath, ['images/bg-home.png', 'images/bgg-image.png'], true))) {
+            $theme[$pathKey] = $submittedPath;
+        }
+    }
+
+    foreach (['soft_shadows', 'smooth_animations', 'gradients', 'high_contrast', 'reduce_motion'] as $flag) {
+        $theme[$flag] = $request->boolean($flag);
+    }
+
+    $dir = public_path('images/admin');
+    if (!is_dir($dir)) {
+        mkdir($dir, 0775, true);
+    }
+
+    foreach ([
+        'logo' => 'logo_path',
+        'background' => 'background_path',
+        'auth_background' => 'auth_background_path',
+    ] as $input => $key) {
+        if ($request->hasFile($input)) {
+            $file = $request->file($input);
+            $name = $input . '-' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move($dir, $name);
+            $theme[$key] = 'images/admin/' . $name;
+        }
+    }
+
+    DB::table('system_settings')->updateOrInsert(
+        ['key' => 'theme'],
+        ['value' => json_encode($theme), 'updated_at' => now(), 'created_at' => now()]
+    );
+
+    return response()->json([
+        'message' => 'Personalização salva com sucesso.',
+        'theme' => $theme,
+    ]);
+}
+
+public function adminRestaurarTema()
+{
+    $this->ensureAdmin();
+    $theme = $this->defaultTheme();
+
+    DB::table('system_settings')->updateOrInsert(
+        ['key' => 'theme'],
+        ['value' => json_encode($theme), 'updated_at' => now(), 'created_at' => now()]
+    );
+
+    return response()->json([
+        'message' => 'Tema restaurado com sucesso.',
+        'theme' => $theme,
+    ]);
+}
+
+  public function trocarSenha(Request $request)
+  {
+      $request->validate([
+          'current_password'      => 'required',
+          'password'              => 'required|min:8|confirmed',
+      ], [
+          'current_password.required' => 'Informe a senha atual.',
+          'password.min'              => 'A nova senha deve ter no mínimo 8 caracteres.',
+          'password.confirmed'        => 'As senhas não coincidem.',
+      ]);
+
+      $user = Auth::user();
+
+      if (!Hash::check($request->current_password, $user->password)) {
+          return response()->json([
+              'errors' => ['current_password' => ['Senha atual incorreta.']]
+          ], 422);
+      }
+
+      $user->password = Hash::make($request->password);
+      $user->save();
+
+      Atividade::create([
+          'user_id'   => $user->id,
+          'descricao' => 'Alterou a senha da conta.',
+      ]);
+
+      return response()->json(['message' => 'Senha alterada com sucesso.']);
+  }
+
 public function visualizarUsuario(User $user)
 {
     if ($user->id === Auth::id()) {
@@ -206,6 +552,7 @@ public function atualizarPerfil(Request $request)
             Rule::unique('users')->ignore($user->id),
         ],
         'telefone' => 'nullable|max:20',
+        'data_nascimento' => 'nullable|date',
         'curso' => [
             'nullable',
             Rule::in([
@@ -229,7 +576,7 @@ public function atualizarPerfil(Request $request)
         ->values()
         ->all();
 
-    $user->fill([
+    $dadosPerfil = [
         'name' => $request->name,
         'email' => $request->email,
         'telefone' => $request->telefone,
@@ -237,7 +584,13 @@ public function atualizarPerfil(Request $request)
         'sobre_mim' => $request->sobre_mim,
         'interesses_markdown' => $request->interesses_markdown,
         'tecnologias' => $tecnologias,
-    ]);
+    ];
+
+    if ($request->has('data_nascimento')) {
+        $dadosPerfil['data_nascimento'] = $request->data_nascimento;
+    }
+
+    $user->fill($dadosPerfil);
 
     if($request->hasFile('foto')){
         $arquivo = $request->file('foto');
@@ -252,6 +605,19 @@ public function atualizarPerfil(Request $request)
         Atividade::create([
             'user_id' => $user->id,
             'descricao' => 'Atualizou as informações do perfil'
+        ]);
+    }
+
+    if ($request->expectsJson()) {
+        return response()->json([
+            'message' => 'Perfil atualizado com sucesso.',
+            'user' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'telefone' => $user->telefone,
+                'curso' => $user->curso,
+                'data_nascimento' => $user->data_nascimento,
+            ],
         ]);
     }
 
@@ -324,16 +690,160 @@ public function home()
         ->take(2)
         ->get();
 
-    $projetosFeed = Projeto::with('criador')
+    $projetosFeed = Projeto::with(['criador', 'curtidas'])
         ->withCount('curtidas')
         ->withCount('comentarios')
         ->latest()
         ->get();
 
+    $projetosDestaque = Projeto::with(['membros' => function ($query) {
+            $query->wherePivot('status', 'aceito');
+        }])
+        ->withCount('curtidas')
+        ->withCount('comentarios')
+        ->get()
+        ->sortByDesc(fn ($projeto) => $projeto->curtidas_count + $projeto->comentarios_count)
+        ->take(2)
+        ->values();
+
+    $tecnologiasEmAlta = User::query()
+        ->whereNotNull('tecnologias')
+        ->get(['tecnologias'])
+        ->flatMap(fn ($usuario) => $usuario->tecnologias ?? [])
+        ->map(fn ($tecnologia) => trim((string) $tecnologia))
+        ->filter()
+        ->groupBy(fn ($tecnologia) => strtolower($tecnologia))
+        ->map(fn ($grupo) => [
+            'nome' => $grupo->first(),
+            'total' => $grupo->count(),
+        ])
+        ->sortByDesc('total')
+        ->take(4)
+        ->values();
+
     return view('auth.home', compact(
         'sugestoes',
-        'projetosFeed'
+        'projetosFeed',
+        'projetosDestaque',
+        'tecnologiasEmAlta'
     ));
+}
+
+public function notificacoesHeader()
+{
+    $user = Auth::user();
+
+    $solicitacoesConexao = Follower::where('seguido_id', $user->id)
+        ->where('status', 'pendente')
+        ->with('seguidor')
+        ->latest()
+        ->take(4)
+        ->get()
+        ->map(fn ($follow) => [
+            'tipo' => 'Conexão',
+            'icone' => 'fa-user-plus',
+            'titulo' => optional($follow->seguidor)->name . ' quer se conectar',
+            'texto' => optional($follow->seguidor)->curso ?: 'Nova solicitação de conexão.',
+            'url' => route('conexoes'),
+            'data' => optional($follow->created_at)->diffForHumans(),
+            'timestamp' => optional($follow->created_at)->timestamp ?? 0,
+        ]);
+
+    $conexoesAceitas = Follower::where('seguidor_id', $user->id)
+        ->where('status', 'aceito')
+        ->with('seguido')
+        ->latest('updated_at')
+        ->take(3)
+        ->get()
+        ->map(fn ($follow) => [
+            'tipo' => 'Conexão',
+            'icone' => 'fa-user-check',
+            'titulo' => optional($follow->seguido)->name . ' aceitou sua conexão',
+            'texto' => 'Vocês agora estão conectados.',
+            'url' => route('conexoes'),
+            'data' => optional($follow->updated_at)->diffForHumans(),
+            'timestamp' => optional($follow->updated_at)->timestamp ?? 0,
+        ]);
+
+    $convitesProjeto = Projeto::whereHas('membros', function ($query) use ($user) {
+            $query->where('users.id', $user->id)
+                ->where('projeto_user.status', 'pendente');
+        })
+        ->with('criador')
+        ->latest()
+        ->take(4)
+        ->get()
+        ->map(fn ($projeto) => [
+            'tipo' => 'Projeto',
+            'icone' => 'fa-folder-open',
+            'titulo' => 'Convite para ' . $projeto->nome,
+            'texto' => 'Enviado por ' . (optional($projeto->criador)->name ?: 'um usuário'),
+            'url' => route('projetos'),
+            'data' => optional($projeto->updated_at)->diffForHumans(),
+            'timestamp' => optional($projeto->updated_at)->timestamp ?? 0,
+        ]);
+
+    $comentarios = \App\Models\ComentarioProjeto::whereHas('projeto', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })
+        ->where('user_id', '!=', $user->id)
+        ->with(['user', 'projeto'])
+        ->latest()
+        ->take(5)
+        ->get()
+        ->map(fn ($comentario) => [
+            'tipo' => 'Comentário',
+            'icone' => 'fa-comment',
+            'titulo' => optional($comentario->user)->name . ' comentou em ' . optional($comentario->projeto)->nome,
+            'texto' => \Illuminate\Support\Str::limit($comentario->comentario, 80),
+            'url' => $comentario->projeto ? route('projetos.show', $comentario->projeto) : route('home'),
+            'data' => optional($comentario->created_at)->diffForHumans(),
+            'timestamp' => optional($comentario->created_at)->timestamp ?? 0,
+        ]);
+
+    $curtidas = DB::table('projeto_curtidas')
+        ->join('projetos', 'projetos.id', '=', 'projeto_curtidas.projeto_id')
+        ->join('users', 'users.id', '=', 'projeto_curtidas.user_id')
+        ->where('projetos.user_id', $user->id)
+        ->where('projeto_curtidas.user_id', '!=', $user->id)
+        ->select(
+            'projeto_curtidas.created_at',
+            'projetos.id as projeto_id',
+            'projetos.nome as projeto_nome',
+            'users.name as user_name'
+        )
+        ->latest('projeto_curtidas.created_at')
+        ->take(5)
+        ->get()
+        ->map(fn ($curtida) => [
+            'tipo' => 'Interação',
+            'icone' => 'fa-heart',
+            'titulo' => $curtida->user_name . ' curtiu ' . $curtida->projeto_nome,
+            'texto' => 'Seu projeto recebeu uma nova curtida.',
+            'url' => route('projetos.show', $curtida->projeto_id),
+            'data' => \Carbon\Carbon::parse($curtida->created_at)->diffForHumans(),
+            'timestamp' => \Carbon\Carbon::parse($curtida->created_at)->timestamp,
+        ]);
+
+    $notificacoes = collect()
+        ->merge($solicitacoesConexao)
+        ->merge($conexoesAceitas)
+        ->merge($convitesProjeto)
+        ->merge($comentarios)
+        ->merge($curtidas)
+        ->filter(fn ($notificacao) => trim((string) $notificacao['titulo']) !== '')
+        ->sortByDesc(fn ($notificacao) => $notificacao['timestamp'])
+        ->take(10)
+        ->map(function ($notificacao) {
+            unset($notificacao['timestamp']);
+            return $notificacao;
+        })
+        ->values();
+
+    return response()->json([
+        'total' => $notificacoes->count(),
+        'notificacoes' => $notificacoes,
+    ]);
 }
 
 public function conexoes()

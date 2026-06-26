@@ -18,6 +18,7 @@ class User extends Authenticatable
         'cpf',
         'data_nascimento',
         'tipo',
+        'is_admin',
         'foto',
         'curso',
         'telefone',
@@ -56,7 +57,8 @@ public function seguindo()
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'tecnologias' => 'array'
+        'tecnologias' => 'array',
+        'is_admin' => 'boolean'
     ];
 
     public function atividades()
