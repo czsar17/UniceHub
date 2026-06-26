@@ -58,7 +58,9 @@
           <img src="{{ asset(Auth::user()->foto) }}" class="profile-pic">
           <div>
             <h4>{{ Auth::user()->name }}</h4>
-            @if(Auth::user()->curso)<span>{{ Auth::user()->curso }}</span>@endif
+            @if(Auth::user()->isVerifiedProfessor())
+              <span class="teacher-verified-badge compact"><i class="fa-solid fa-circle-check"></i> Professor verificado</span>
+            @elseif(Auth::user()->curso)<span>{{ Auth::user()->curso }}</span>@endif
           </div>
         </div>
         <form method="POST" action="/logout">
@@ -128,11 +130,10 @@
         {{-- Lista de projetos --}}
         <div class="projects-list">
 
-<div id="resultadoVazio"
-     class="empty-state"
-     style="display:none;">
-    <i class="fa-regular fa-folder-open"></i>
-    <p>Nenhum projeto encontrado com esses filtros.</p>
+<div id="resultadoVazio" class="empty-state project-empty-state" style="display:none;">
+    <div class="project-empty-icon"><i class="fa-solid fa-diagram-project"></i></div>
+    <h3>Nenhum projeto encontrado</h3>
+    <p>Tente outro nome, tecnologia ou status para filtrar seus projetos.</p>
 </div>
 
           @forelse($projetos as $projeto)
@@ -152,6 +153,16 @@
                     </span>
                   </div>
 
+                  @if($projeto->criador)
+                    <div class="project-owner-line">
+                      <img src="{{ asset($projeto->criador->foto ?? 'images/default-user.png') }}" alt="">
+                      <span>{{ $projeto->criador->name }}</span>
+                      @if($projeto->criador?->isVerifiedProfessor())
+                        <span class="teacher-verified-badge mini"><i class="fa-solid fa-circle-check"></i></span>
+                      @endif
+                    </div>
+                  @endif
+
                   <p class="project-description">
                     {{ Str::limit(strip_tags($projeto->descricao), 180) }}
                   </p>
@@ -163,8 +174,8 @@
                   </div>
 
                   <div class="project-footer">
-                    <span>👥 {{ $projeto->membros->count() }} membros</span>
-                    <span>📅 {{ $projeto->created_at->format('d/m/Y') }}</span>
+                    <span><i class="fa-solid fa-users"></i> {{ $projeto->membros->count() }} membros</span>
+                    <span><i class="fa-regular fa-calendar"></i> {{ $projeto->created_at->format('d/m/Y') }}</span>
                   </div>
                 </div>
               </a>
@@ -192,10 +203,11 @@
             </div>
 
           @empty
-            <div class="empty-state">
-              <i class="fa-regular fa-folder-open" style="font-size:48px;color:#cbe8d8;"></i>
-              <p>Nenhum projeto encontrado.</p>
-              <a href="{{ route('projetoscad') }}" class="new-project-btn" style="margin-top:12px;display:inline-flex;">
+            <div class="empty-state project-empty-state">
+              <div class="project-empty-icon"><i class="fa-solid fa-diagram-project"></i></div>
+              <h3>Nenhum projeto encontrado</h3>
+              <p>Crie seu primeiro projeto para organizar ideias, membros e tecnologias em um só lugar.</p>
+              <a href="{{ route('projetoscad') }}" class="new-project-btn">
                 <i class="fa-solid fa-plus"></i> Criar primeiro projeto
               </a>
             </div>

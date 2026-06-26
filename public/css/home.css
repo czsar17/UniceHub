@@ -517,3 +517,48 @@ body { overflow: hidden; height: 100vh; }
 }
 
 #commentForm button:hover { background: #245946; }
+/* ── Widgets recolhíveis ───────────────────────────────────── */
+.widget-toggle {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: #25534a;
+    cursor: pointer;
+    transition: background .2s, transform .2s, color .2s;
+}
+
+.widget-toggle:hover {
+    background: rgba(45, 106, 99, .1);
+    color: #1f6f60;
+}
+
+.widget-card .widget-body {
+    overflow: hidden;
+    max-height: 680px;
+    opacity: 1;
+    transition: max-height .28s ease, opacity .2s ease, margin .2s ease;
+}
+
+.widget-card.collapsed {
+    padding-bottom: 16px;
+}
+
+.widget-card.collapsed .widget-title {
+    margin-bottom: 0;
+}
+
+.widget-card.collapsed .widget-body {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    pointer-events: none;
+}
+
+.widget-card.collapsed .widget-toggle {
+    transform: rotate(90deg);
+}

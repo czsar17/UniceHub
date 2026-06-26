@@ -92,7 +92,11 @@ use Illuminate\Support\Str;
               <img src="{{ asset($projeto->criador->foto ?? 'images/default-user.png') }}">
               <div>
                 <h3>{{ $projeto->criador->name }}</h3>
-                <span>{{ $projeto->criador->curso }}</span>
+                @if($projeto->criador?->isVerifiedProfessor())
+                  <span class="teacher-verified-badge compact"><i class="fa-solid fa-circle-check"></i> Professor verificado</span>
+                @else
+                  <span>{{ $projeto->criador->curso }}</span>
+                @endif
               </div>
             </a>
 
@@ -184,8 +188,9 @@ use Illuminate\Support\Str;
       <div class="widget-card">
         <div class="widget-title">
           <h3>Sugestões de Conexões</h3>
-          <i class="fa-solid fa-ellipsis"></i>
+          <button class="widget-toggle" type="button" aria-label="Recolher card" aria-expanded="true"><i class="fa-solid fa-ellipsis"></i></button>
         </div>
+        <div class="widget-body">
 
         @if($sugestoes->count() > 0)
           @foreach($sugestoes as $usuario)
@@ -209,13 +214,15 @@ use Illuminate\Support\Str;
             <p>Nenhum usuário encontrado para se conectar.</p>
           </div>
         @endif
+        </div>
       </div>
 
       <div class="widget-card">
         <div class="widget-title">
           <h3><i class="fa-solid fa-laptop-code"></i> Projetos em Destaque</h3>
-          <i class="fa-solid fa-ellipsis"></i>
+          <button class="widget-toggle" type="button" aria-label="Recolher card" aria-expanded="true"><i class="fa-solid fa-ellipsis"></i></button>
         </div>
+        <div class="widget-body">
 
         @forelse($projetosDestaque as $projetoDestaque)
           <div class="project-mini-card">
@@ -236,19 +243,22 @@ use Illuminate\Support\Str;
             <p>Nenhum projeto com interações ainda.</p>
           </div>
         @endforelse
+        </div>
       </div>
 
       <div class="widget-card">
         <div class="widget-title">
           <h3>Tecnologias em alta</h3>
-          <i class="fa-solid fa-ellipsis"></i>
+          <button class="widget-toggle" type="button" aria-label="Recolher card" aria-expanded="true"><i class="fa-solid fa-ellipsis"></i></button>
         </div>
+        <div class="widget-body">
         <div class="tags">
           @forelse($tecnologiasEmAlta as $tecnologia)
             <span>#{{ $tecnologia['nome'] }} <small>{{ $tecnologia['total'] }}</small></span>
           @empty
             <span>#Sem tags ainda</span>
           @endforelse
+        </div>
         </div>
       </div>
 

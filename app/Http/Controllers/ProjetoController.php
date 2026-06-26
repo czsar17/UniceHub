@@ -22,7 +22,7 @@
                             ->where('projeto_user.status', 'aceito');
                     });
             })
-                ->with(['membros' => function ($query) {
+                ->with(['criador', 'membros' => function ($query) {
                     $query->wherePivot('status', 'aceito');
                 }])
                 ->latest()

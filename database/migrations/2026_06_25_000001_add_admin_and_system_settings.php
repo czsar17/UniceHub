@@ -35,6 +35,8 @@ return new class extends Migration
                 'background_color' => '#F4FBF8',
                 'section_color' => '#FFFFFF',
                 'text_color' => '#21433D',
+                'text_secondary_color' => '#6D7D78',
+                'input_background_color' => '#F8FAFC',
                 'font_family' => 'Inter, Segoe UI, Arial, sans-serif',
                 'font_size' => '16',
                 'title_font_family' => 'Inter, Segoe UI, Arial, sans-serif',

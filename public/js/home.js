@@ -260,3 +260,19 @@ if (modal) {
     });
 
 }
+// =========================
+// RECOLHER WIDGETS LATERAIS
+// =========================
+
+document.querySelectorAll('.widget-toggle').forEach((btn) => {
+    btn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const card = btn.closest('.widget-card');
+        if (!card) return;
+
+        const collapsed = !card.classList.contains('collapsed');
+        card.classList.toggle('collapsed', collapsed);
+        btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        btn.setAttribute('aria-label', collapsed ? 'Expandir card' : 'Recolher card');
+    });
+});

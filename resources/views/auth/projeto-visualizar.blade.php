@@ -200,14 +200,11 @@
                 {{-- Ações --}}
                 <div class="profile-actions">
 
-                    {{-- Curtir (fora do form de edição — usa form próprio) --}}
-                    <form action="{{ route('projetos.curtir', $projeto) }}" method="POST" style="display:contents;">
-                        @csrf
-                        <button type="submit" class="like-btn {{ $jaGostei ? 'liked' : '' }}">
-                            <i class="{{ $jaGostei ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
-                            <span id="totalCurtidas">{{ $totalCurtidas }}</span>
-                        </button>
-                    </form>
+                    {{-- Curtir: usa form externo para nao aninhar no form de edicao --}}
+                    <button type="submit" form="likeProjectForm" class="like-btn {{ $jaGostei ? 'liked' : '' }}">
+                        <i class="{{ $jaGostei ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
+                        <span id="totalCurtidas">{{ $totalCurtidas }}</span>
+                    </button>
 
                     {{-- Comentários: rola para a aba --}}
                     <button type="button" class="comment-btn" id="btnIrComentarios">
@@ -299,6 +296,10 @@
 
         </form>{{-- FIM formProjeto — os forms abaixo são independentes --}}
 
+        <form id="likeProjectForm" action="{{ route('projetos.curtir', $projeto) }}" method="POST" hidden>
+            @csrf
+        </form>
+
         {{-- ── ABA COMENTÁRIOS ── --}}
         <section class="tab-content" id="comentarios">
             <div class="profile-card comentarios-card">
@@ -376,7 +377,11 @@
                                  alt="{{ $membro->name }}">
                             <div>
                                 <h3>{{ $membro->name }}</h3>
-                                <span>{{ $membro->curso ?: 'Curso não informado' }}</span>
+                                @if($membro->isVerifiedProfessor())
+                                    <span class="teacher-verified-badge compact"><i class="fa-solid fa-circle-check"></i> Professor verificado</span>
+                                @else
+                                    <span>{{ $membro->curso ?: 'Curso não informado' }}</span>
+                                @endif
                             </div>
                         </a>
                     @empty
